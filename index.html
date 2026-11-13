@@ -160,6 +160,7 @@
   }
   .chips::-webkit-scrollbar{display:none}
   @media (max-width:767px){
+    .ctrl #orderBtn{display:none}
     .chips{
       -webkit-mask-image:linear-gradient(to right,#000 0,#000 calc(100% - 22px),transparent 100%);
       mask-image:linear-gradient(to right,#000 0,#000 calc(100% - 22px),transparent 100%);
@@ -468,6 +469,7 @@
         <button data-mode="short" aria-pressed="false">简答</button>
       </div>
       <button class="mini" data-act="order" id="orderBtn">顺序出题</button>
+      <button class="mini" data-act="resetAnswers" id="resetAnsBtn">重置答案</button>
       <button class="mini" data-act="stats">数据</button>
     </div>
     <div class="stats" id="stats"></div>
@@ -1428,6 +1430,8 @@
     toastTimer: 0,
     resetArm: false,
     resetTimer: 0,
+    ansArm: false,
+    ansTimer: 0,
     hold: null
   };
 
@@ -1739,7 +1743,7 @@
     if (!q) return;
 
     if (state.mode === 'practice') {
-      if (state.done[q.id]) { toast('本题已作答；如需重答，点下方「重做」'); return; }
+      if (state.done[q.id]) { toast('本题已作答；如需重来，点顶部「重置答案」'); return; }
       if (q.type === 'multi') {
         var cur = (state.answers[q.id] || []).slice();
         var idx = cur.indexOf(orig);
@@ -2002,6 +2006,8 @@
     ui.hold = null;
     ui.sheet = null;
     ui.resetArm = false;
+    ui.ansArm = false;
+    clearTimeout(ui.ansTimer);
     save();
     render();
   }
@@ -2021,6 +2027,17 @@
     foldBtn.setAttribute('aria-expanded', state.collapse ? 'false' : 'true');
     orderBtn.textContent = state.order === 'seq' ? '顺序出题' : '随机出题';
     orderBtn.hidden = state.mode === 'short';
+
+    var resetAnsBtn = document.getElementById('resetAnsBtn');
+    resetAnsBtn.hidden = state.mode !== 'practice';
+    resetAnsBtn.textContent = ui.ansArm ? '确认重置' : '重置答案';
+    if (ui.ansArm) resetAnsBtn.classList.add('danger'); else resetAnsBtn.classList.remove('danger');
+    var ansCount = 0;
+    for (var ai = 0; ai < QUESTIONS.length; ai++) {
+      var aq = QUESTIONS[ai];
+      if (state.done[aq.id] || (state.answers[aq.id] || []).length) ansCount++;
+    }
+    resetAnsBtn.disabled = ansCount === 0;
 
     var segs = document.querySelectorAll('.seg button');
     for (var i = 0; i < segs.length; i++) {
@@ -2272,13 +2289,7 @@
       var multi = q && q.type === 'multi' && !state.done[q.id];
       var label = multi ? '确认答案' : (atLast ? '完成本轮' : '下一题');
       var act = multi ? 'confirm' : (atLast ? 'finish' : 'next');
-      var extra = '';
-      if (q && state.done[q.id]) {
-        extra = '<button class="btn ghost" data-act="redo">重做本题</button>';
-      } else if (q && q.type === 'multi' && (state.answers[q.id] || []).length) {
-        extra = '<button class="btn ghost" data-act="clearSel">清空已选</button>';
-      }
-      return prevBtn + extra + '<button class="btn primary" data-act="' + act + '">' + label + '</button>';
+      return prevBtn + '<button class="btn primary" data-act="' + act + '">' + label + '</button>';
     }
 
     if (atLast) {
@@ -2337,6 +2348,8 @@
       '</div>' +
       '<h3 style="font-size:14px;margin-bottom:4px">各科正确率</h3>' +
       subjectRowsHtml() +
+      '<h3 style="font-size:14px;margin:14px 0 6px">练习设置</h3>' +
+      '<button class="mini wide" data-act="order">出题顺序：' + (state.order === 'seq' ? '顺序' : '随机') + '（点击切换）</button>' +
       '<div class="pactions">' +
       '<button class="mini wide" data-act="clearWrong"' + (state.wrong.length ? '' : ' disabled') + '>清空错题本（' + state.wrong.length + '）</button>' +
       '<button class="mini wide danger" data-act="reset">' + (ui.resetArm ? '再点一次确认清空' : '重置全部进度') + '</button>' +
@@ -2516,6 +2529,31 @@
         render();
         toast('错题本已清空');
         break;
+      case 'resetAnswers':
+        if (!ui.ansArm) {
+          ui.ansArm = true;
+          clearTimeout(ui.ansTimer);
+          ui.ansTimer = window.setTimeout(function () {
+            ui.ansArm = false;
+            render();
+          }, 3000);
+          render();
+          toast('再点一次确认：清空全部练习答案（错题本保留）');
+        } else {
+          clearTimeout(ui.ansTimer);
+          ui.ansArm = false;
+          state.answers = {};
+          state.done = {};
+          state.hist = {};
+          state.idx = 0;
+          state.wrongOnly = false;
+          ui.hold = null;
+          save();
+          render();
+          toTop();
+          toast('已清空全部练习答案，错题本保留');
+        }
+        break;
       case 'qaTab':
         shortTab('qa');
         break;
@@ -2537,26 +2575,6 @@
       case 'shortEnd':
         toast('15 道简答已过完，可切到「数字速记」');
         break;
-      case 'redo': {
-        var rq = curQ();
-        if (rq && state.mode === 'practice') {
-          delete state.answers[rq.id];
-          delete state.done[rq.id];
-          save();
-          render();
-          toast('已重置本题，请重新作答');
-        }
-        break;
-      }
-      case 'clearSel': {
-        var cq = curQ();
-        if (cq && state.mode === 'practice') {
-          delete state.answers[cq.id];
-          save();
-          render();
-        }
-        break;
-      }
       default:
         break;
     }
