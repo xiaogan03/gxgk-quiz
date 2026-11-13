@@ -1,0 +1,2613 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f2efe8" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#111513" media="(prefers-color-scheme: dark)">
+<meta name="format-detection" content="telephone=no">
+<title>广西国控 · 笔试冲刺</title>
+<!--
+  加题格式（第 7 节）：在 QUESTIONS 数组末尾追加，每行一题、逗号结尾。
+  { id: 唯一数字, type: 'single'|'multi'|'judge', subject: '与已有科目名完全一致',
+    stem: '题干', options: ['选项A','选项B','选项C','选项D'],
+    answer: [正确选项下标...], explain: '解析' }
+  判断题 options 固定为 ['正确','错误']，answer 用 [0]（正确）或 [1]（错误）。
+  科目列表、题量、总题数全部由数组自动计算，不要手写。
+-->
+<style>
+  :root{
+    --bg:#f2efe8;
+    --bg2:#f7f4ec;
+    --card:#fffdf7;
+    --ink:#181d1a;
+    --muted:#5c6660;
+    --line:#e3ddd0;
+    --line2:#d5cec0;
+    --accent:#1d2c24;
+    --on-accent:#f7f4ec;
+    --seal:#b3282d;
+    --sealText:#b3282d;
+    --tagbg:#efe9db;
+    --selbg:#edf1ec;
+    --ok:#12683f;
+    --okBg:#e8f3ec;
+    --okLine:#7fb99a;
+    --bad:#a4242b;
+    --badBg:#fbecec;
+    --badLine:#e0a3a6;
+    --dockbg:rgba(242,239,232,.95);
+    --toastbg:#1d2c24;
+    --toastfg:#f7f4ec;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#111513;
+      --bg2:#151b18;
+      --card:#1a211e;
+      --ink:#eef2ee;
+      --muted:#a3aea7;
+      --line:#2b3430;
+      --line2:#3a453f;
+      --accent:#dfe7e1;
+      --on-accent:#121714;
+      --seal:#c8353a;
+      --sealText:#ff9a9a;
+      --tagbg:#242c28;
+      --selbg:#24302a;
+      --ok:#63d59b;
+      --okBg:#13291d;
+      --okLine:#2f6f4c;
+      --bad:#ff9a9a;
+      --badBg:#331a1c;
+      --badLine:#7d3b3f;
+      --dockbg:rgba(17,21,19,.95);
+      --toastbg:#e6ece7;
+      --toastfg:#121714;
+    }
+  }
+
+  *,*::before,*::after{box-sizing:border-box}
+  [hidden]{display:none !important}
+  html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Source Han Sans SC","Noto Sans CJK SC",sans-serif;
+    font-size:16px;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+    -webkit-tap-highlight-color:transparent;
+    overflow-x:hidden;
+    min-height:100vh;
+    min-height:100dvh;
+  }
+  button{
+    font-family:inherit;font-size:inherit;color:inherit;
+    background:none;border:0;padding:0;margin:0;
+    cursor:pointer;text-align:inherit;
+    -webkit-tap-highlight-color:transparent;
+    transition:transform .08s ease,background-color .12s ease,border-color .12s ease,opacity .12s ease;
+  }
+  button:active{transform:scale(.985)}
+  button:disabled{opacity:.45;cursor:default}
+  button:focus-visible{outline:2px solid var(--seal);outline-offset:2px}
+  h1,h2,h3,p,ul{margin:0}
+  small{font-size:inherit}
+
+  /* ============ 顶部 ============ */
+  .top{
+    position:sticky;top:0;z-index:30;
+    background:var(--bg);
+    border-bottom:1px solid var(--line);
+    padding-top:env(safe-area-inset-top);
+  }
+  .top-in{max-width:1120px;margin:0 auto;padding:6px 14px 8px}
+  .brand{display:flex;align-items:center;gap:10px;min-height:44px}
+  .seal{
+    flex:0 0 auto;width:30px;height:30px;border-radius:8px;
+    background:var(--seal);color:#fff;
+    display:flex;align-items:center;justify-content:center;
+    font-size:15px;font-weight:700;line-height:1;
+  }
+  .bt{flex:1 1 auto;min-width:0}
+  .b1{font-size:15.5px;font-weight:700;letter-spacing:.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .b2{font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .foldbtn{
+    flex:0 0 auto;width:44px;height:44px;border-radius:12px;
+    border:1px solid var(--line);background:var(--card);
+    display:flex;align-items:center;justify-content:center;
+    font-size:16px;color:var(--muted);line-height:1;
+  }
+  .pbar{height:3px;border-radius:99px;background:var(--line);overflow:hidden;margin:6px 0 8px}
+  .pbar i{display:block;height:100%;width:0;border-radius:99px;background:var(--seal);transition:width .18s ease}
+
+  .ctrl{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .seg{
+    flex:0 0 auto;display:flex;gap:8px;padding:3px;
+    border:1px solid var(--line);border-radius:12px;background:var(--card);
+  }
+  .seg button{min-height:44px;padding:0 10px;border-radius:9px;font-size:14.5px;font-weight:600;color:var(--muted)}
+  .seg button[aria-pressed="true"]{background:var(--accent);color:var(--on-accent)}
+  .mini{
+    min-height:44px;padding:0 12px;border:1px solid var(--line);border-radius:12px;
+    background:var(--card);color:var(--ink);font-size:14px;font-weight:500;
+    display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;
+  }
+  .ctrl .mini[data-act="stats"]{margin-left:auto}
+  .mini.wide{width:100%;min-height:48px;font-size:15px}
+  .mini.danger{color:var(--bad);border-color:var(--badLine)}
+
+  .stats{
+    display:grid;grid-template-columns:repeat(4,1fr);
+    margin-top:8px;border:1px solid var(--line);border-radius:14px;
+    overflow:hidden;background:var(--card);
+  }
+  .stat{
+    min-height:48px;padding:6px 4px;text-align:center;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+    border-left:1px solid var(--line);color:var(--ink);
+  }
+  .stat:first-child{border-left:0}
+  .stat b{font-size:17px;font-weight:700;line-height:1.2;font-variant-numeric:tabular-nums}
+  .stat b i{font-style:normal;font-size:12px;font-weight:500;color:var(--muted)}
+  .stat span{font-size:11px;color:var(--muted);line-height:1.2}
+
+  .chips{
+    display:flex;gap:8px;overflow-x:auto;padding:8px 0 2px;
+    scrollbar-width:none;-webkit-overflow-scrolling:touch;
+  }
+  .chips::-webkit-scrollbar{display:none}
+  @media (max-width:767px){
+    .chips{
+      -webkit-mask-image:linear-gradient(to right,#000 0,#000 calc(100% - 22px),transparent 100%);
+      mask-image:linear-gradient(to right,#000 0,#000 calc(100% - 22px),transparent 100%);
+    }
+  }
+  .chip{
+    flex:0 0 auto;min-height:44px;padding:0 13px;border-radius:12px;
+    border:1px solid var(--line);background:var(--card);color:var(--ink);
+    font-size:14.5px;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;
+  }
+  .chip small{font-size:11.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+  .chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+  .chip[aria-pressed="true"] small{color:var(--bg);opacity:.72}
+  .chip.wrongchip[aria-pressed="true"]{background:var(--seal);border-color:var(--seal);color:#fff}
+  .chip.wrongchip[aria-pressed="true"] small{color:#fff;opacity:.8}
+
+  /* ============ 主体 ============ */
+  .wrap{
+    max-width:100%;
+    margin:0 auto;
+    padding:10px 14px calc(102px + env(safe-area-inset-bottom));
+  }
+  .col-main{min-width:0}
+
+  .card{
+    background:var(--card);border:1px solid var(--line);border-radius:16px;
+    padding:15px 14px;margin-top:10px;
+  }
+  .meta{
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+    font-size:12.5px;color:var(--muted);margin-bottom:10px;
+  }
+  .tag{
+    padding:2px 8px;border-radius:7px;background:var(--tagbg);
+    font-size:12px;font-weight:600;color:var(--ink);line-height:1.7;
+  }
+  .tag.t2{background:transparent;border:1px solid var(--line);font-weight:500;color:var(--muted)}
+  .num{margin-left:auto;font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+  .minibtn{
+    min-height:44px;padding:0 10px;border:1px solid var(--line);border-radius:10px;
+    background:var(--bg2);font-size:13px;color:var(--ink);line-height:1;
+  }
+  .state{font-size:12px;font-weight:700;padding:2px 8px;border-radius:7px;background:var(--tagbg);color:var(--muted)}
+  .state.ok{background:var(--okBg);color:var(--ok)}
+  .state.bad{background:var(--badBg);color:var(--bad)}
+
+  .stem{
+    font-size:17.5px;line-height:1.55;font-weight:600;
+    margin:0 0 14px;overflow-wrap:anywhere;word-break:break-word;
+  }
+  .opts{display:flex;flex-direction:column;gap:10px}
+  .opt{
+    display:flex;align-items:flex-start;gap:10px;width:100%;
+    min-height:56px;padding:13px;border:1.5px solid var(--line);border-radius:14px;
+    background:var(--bg2);color:var(--ink);text-align:left;
+  }
+  .opt:active{background:var(--selbg)}
+  .opt .lt{
+    flex:0 0 auto;width:26px;height:26px;border-radius:8px;
+    border:1px solid var(--line2);background:var(--card);
+    display:flex;align-items:center;justify-content:center;
+    font-size:13px;font-weight:700;color:var(--muted);line-height:1;
+  }
+  .opt .ot{flex:1 1 auto;min-width:0;font-size:16px;line-height:1.5;padding-top:1px;overflow-wrap:anywhere;word-break:break-word}
+  .opt .mk{flex:0 0 auto;font-size:17px;font-weight:700;line-height:26px;padding-left:2px}
+  .opt.sel{border-color:var(--accent);background:var(--selbg)}
+  .opt.sel .lt{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+  .opt.ok{border-color:var(--okLine);background:var(--okBg)}
+  .opt.ok .lt{background:var(--ok);border-color:var(--ok);color:#fff}
+  .opt.ok .mk{color:var(--ok)}
+  .opt.bad{border-color:var(--badLine);background:var(--badBg)}
+  .opt.bad .lt{background:var(--bad);border-color:var(--bad);color:#fff}
+  .opt.bad .mk{color:var(--bad)}
+  .opt.dim{opacity:.52}
+
+  .hint{margin:10px 0 0;font-size:14px;line-height:1.55;color:var(--muted)}
+
+  .exp{
+    margin-top:14px;border-radius:13px;padding:12px 13px;
+    border-left:3px solid var(--ok);background:var(--okBg);
+    overflow-wrap:anywhere;word-break:break-word;
+  }
+  .exp.bad{border-left-color:var(--bad);background:var(--badBg)}
+  .exp .eh{font-size:14.5px;font-weight:700;line-height:1.5;margin-bottom:5px}
+  .exp.bad .eh{color:var(--bad)}
+  .exp.ok .eh{color:var(--ok)}
+  .exp .eb{font-size:16px;line-height:1.65;color:var(--ink);overflow-wrap:anywhere;word-break:break-word}
+
+  .empty{text-align:center;padding:34px 18px}
+  .empty .emo{
+    width:56px;height:56px;border-radius:50%;border:1.5px dashed var(--line2);
+    display:flex;align-items:center;justify-content:center;
+    margin:0 auto 12px;font-size:22px;color:var(--muted);
+  }
+  .empty h2{font-size:17px;margin:0 0 6px}
+  .empty p{font-size:16px;color:var(--muted);margin:0;line-height:1.65}
+
+  .intro h2{font-size:19px;margin:4px 0 8px}
+  .intro p{font-size:16px;color:var(--muted);margin:0 0 10px;line-height:1.7}
+  .intro ul{margin:0;padding-left:18px;font-size:16px;color:var(--muted);line-height:1.85}
+  .kicker{font-size:12px;letter-spacing:.14em;color:var(--sealText);font-weight:700;margin-bottom:2px}
+
+  .result{text-align:center;padding:22px 16px}
+  .score{display:flex;align-items:flex-end;justify-content:center;gap:4px}
+  .score .big{font-size:58px;font-weight:750;line-height:1;font-variant-numeric:tabular-nums}
+  .score .unit{font-size:16px;color:var(--muted);padding-bottom:8px}
+  .verdict{font-size:17px;font-weight:700;margin-top:10px}
+  .rline{font-size:13.5px;color:var(--muted);margin-top:8px;line-height:1.6}
+  .rbar{height:8px;border-radius:99px;background:var(--line);overflow:hidden;margin:14px auto 7px;max-width:320px}
+  .rbar i{display:block;height:100%;border-radius:99px;background:var(--seal)}
+  .rsub{font-size:12.5px;color:var(--muted)}
+
+  /* ============ 底部操作条 ============ */
+  .dock{
+    position:fixed;left:0;right:0;bottom:0;z-index:40;
+    background:var(--dockbg);
+    -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+    border-top:1px solid var(--line);
+    padding:10px 14px calc(10px + env(safe-area-inset-bottom));
+  }
+  .dock-in{max-width:1120px;margin:0 auto;display:flex;gap:10px}
+  .btn{
+    flex:0 0 auto;min-height:52px;padding:0 16px;border-radius:14px;
+    font-size:16px;font-weight:600;line-height:1.2;
+    display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  }
+  .btn.primary{flex:1 1 auto;min-width:0;background:var(--accent);color:var(--on-accent)}
+  .btn.ghost{background:var(--card);border:1px solid var(--line);color:var(--ink)}
+  .btn:disabled{opacity:.35}
+
+  /* ============ 弹层 ============ */
+  .sheet{position:fixed;inset:0;z-index:70;display:flex;align-items:flex-end;justify-content:center}
+  .sheet .mask{position:absolute;inset:0;background:rgba(9,13,11,.44)}
+  .panel{
+    position:relative;width:100%;max-width:560px;max-height:86vh;max-height:86dvh;overflow:auto;
+    background:var(--card);border-radius:20px 20px 0 0;
+    padding:14px 16px calc(18px + env(safe-area-inset-bottom));
+    animation:sheetUp .2s ease both;
+    -webkit-overflow-scrolling:touch;
+  }
+  @keyframes sheetUp{from{transform:translateY(16px);opacity:.6}to{transform:translateY(0);opacity:1}}
+  .phead{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+  .phead h3{font-size:17px;font-weight:700;flex:1 1 auto;min-width:0}
+  .closebtn{
+    flex:0 0 auto;min-height:44px;padding:0 12px;border:1px solid var(--line);
+    border-radius:11px;font-size:14px;color:var(--muted);display:flex;align-items:center;
+  }
+  .overview{
+    display:grid;grid-template-columns:repeat(4,1fr);
+    border:1px solid var(--line);border-radius:13px;overflow:hidden;margin-bottom:14px;
+  }
+  .ov{padding:9px 4px;text-align:center;border-left:1px solid var(--line)}
+  .ov:first-child{border-left:0}
+  .ov b{display:block;font-size:17px;font-variant-numeric:tabular-nums}
+  .ov span{font-size:11px;color:var(--muted)}
+  .srow{padding:7px 0;border-bottom:1px solid var(--line)}
+  .srow:last-child{border-bottom:0}
+  .st{display:flex;align-items:baseline;gap:8px;font-size:14.5px;margin-bottom:5px}
+  .st .sp{margin-left:auto;font-weight:700;font-variant-numeric:tabular-nums;font-size:15px}
+  .sbar{height:6px;border-radius:99px;background:var(--line);overflow:hidden}
+  .sbar i{display:block;height:100%;border-radius:99px;background:var(--seal);transition:width .2s ease}
+  .sm{font-size:11.5px;color:var(--muted);margin-top:4px;font-variant-numeric:tabular-nums}
+  .pactions{display:flex;flex-direction:column;gap:10px;margin-top:14px}
+  .note{font-size:12px;color:var(--muted);line-height:1.6;margin-top:10px}
+  .sheetp{font-size:16px;line-height:1.7;color:var(--ink);margin:4px 0 6px}
+  .grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin:6px 0 16px}
+  .cell{
+    min-height:44px;border:1px solid var(--line);border-radius:10px;
+    background:var(--bg2);font-size:14px;font-variant-numeric:tabular-nums;
+    display:flex;align-items:center;justify-content:center;color:var(--ink);
+  }
+  .cell.ans{background:var(--tagbg);border-color:var(--line2);font-weight:700}
+  .cell.cur{border-color:var(--seal);color:var(--seal);font-weight:700;box-shadow:inset 0 0 0 1px var(--seal)}
+  .legend{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);margin-bottom:4px}
+  .lg{width:12px;height:12px;border-radius:4px;border:1px solid var(--line2)}
+  .lg.cur{border-color:var(--seal)}
+  .lg.ans{background:var(--tagbg)}
+
+  .toast{
+    position:fixed;left:50%;bottom:calc(88px + env(safe-area-inset-bottom));
+    transform:translateX(-50%) translateY(8px);
+    max-width:calc(100% - 32px);
+    padding:10px 15px;border-radius:12px;
+    background:var(--toastbg);color:var(--toastfg);
+    font-size:14px;line-height:1.45;text-align:center;
+    z-index:90;pointer-events:none;opacity:0;
+    transition:opacity .16s ease,transform .16s ease;
+    overflow-wrap:anywhere;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  .fatal{
+    margin:16px;padding:14px;border:1px solid var(--badLine);border-radius:14px;
+    background:var(--badBg);color:var(--ink);font-size:14.5px;line-height:1.6;
+    overflow-wrap:anywhere;
+  }
+  .noscript{margin:40px 16px;font-size:16px;text-align:center;color:var(--muted)}
+
+  .rail{display:none}
+
+  /* ============ 桌面 ============ */
+  @media (min-width:768px){
+    .top{position:static}
+    .top-in{padding:10px 24px 12px}
+    .wrap{
+      max-width:1120px;
+      padding:18px 24px 48px;
+      display:grid;
+      grid-template-columns:minmax(0,1fr) 340px;
+      gap:28px;
+      align-items:start;
+    }
+    .rail{display:block;min-width:0}
+    .rail .sticky{position:sticky;top:18px}
+    .railcard{
+      background:var(--card);border:1px solid var(--line);border-radius:16px;
+      padding:16px;margin-bottom:14px;
+    }
+    .railcard h3{font-size:14px;font-weight:700;margin-bottom:6px}
+    .railcard .sm{font-size:12px}
+    .foot{font-size:11.5px;color:var(--muted);line-height:1.6;padding:0 2px}
+    .dock{
+      position:static;background:none;border:0;padding:16px 0 0;
+      -webkit-backdrop-filter:none;backdrop-filter:none;
+    }
+    .dock-in{max-width:none}
+    .chips{flex-wrap:wrap;overflow:visible}
+    .card{padding:22px 24px;margin-top:12px}
+    .stem{font-size:18px}
+    .stat{min-height:54px}
+    .toast{bottom:28px}
+    .grid{grid-template-columns:repeat(10,1fr)}
+  }
+
+  /* ============ 简答与速记 ============ */
+  .tabs{display:flex;gap:8px;margin-top:10px}
+  .tab{
+    flex:1 1 0;min-height:44px;padding:0 10px;border:1px solid var(--line);border-radius:12px;
+    background:var(--card);color:var(--muted);font-size:14.5px;font-weight:600;
+    display:flex;align-items:center;justify-content:center;white-space:nowrap;
+  }
+  .tab[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+  .qa .kicker{margin-bottom:6px}
+  .qa .stem{margin-bottom:10px}
+  .qaAns{margin-top:14px;border-radius:13px;border:1px solid var(--line);background:var(--bg2);padding:13px}
+  .qaH{font-size:14px;font-weight:700;color:var(--sealText);margin-bottom:8px}
+  .qaOl{margin:0;padding-left:20px;font-size:16px;line-height:1.7;overflow-wrap:anywhere}
+  .qaOl li{margin-bottom:7px}
+  .qaKey{margin-top:10px;padding:9px 10px;border-radius:10px;background:var(--tagbg);font-size:15px;line-height:1.6;overflow-wrap:anywhere}
+  .revealBtn{
+    width:100%;min-height:48px;margin-top:14px;border-radius:13px;
+    border:1px dashed var(--line2);background:var(--bg2);color:var(--ink);
+    font-size:15.5px;font-weight:600;
+  }
+  .ncard{padding:14px 14px 4px}
+  .ngh{font-size:14px;font-weight:700;margin:0 0 2px;color:var(--sealText)}
+  .nhead{display:none}
+  .nrow{display:block;padding:10px 0;border-top:1px solid var(--line)}
+  .nhead + .nrow{border-top:0}
+  .nc{display:block;font-size:16px;line-height:1.6;overflow-wrap:anywhere;margin-top:3px}
+  .nc::before{content:attr(data-l) "：";font-size:12px;color:var(--muted);margin-right:3px}
+  .nc.c1{font-weight:700;margin-top:0}
+  .nc.c2{font-weight:700;color:var(--sealText)}
+  @media (min-width:768px){
+    body[data-appmode="short"] .wrap{display:block;max-width:900px}
+    body[data-appmode="short"] .rail{display:none}
+    .ncard{padding:20px 22px 6px}
+    .nhead{
+      display:grid;grid-template-columns:1.15fr .7fr 1.3fr 1.5fr;gap:12px;
+      padding:6px 8px 8px;font-size:12px;color:var(--muted);font-weight:700;
+      border-bottom:1px solid var(--line);
+    }
+    .nrow{
+      display:grid;grid-template-columns:1.15fr .7fr 1.3fr 1.5fr;gap:12px;
+      padding:10px 8px;border-top:1px solid var(--line);align-items:start;
+    }
+    .nc{font-size:13.5px;line-height:1.55;margin-top:0}
+    .nc::before{content:none}
+    .nc.c1{font-size:13.5px}
+    .nc.c2{color:var(--ink)}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:.01ms !important;transition-duration:.01ms !important}
+  }
+</style>
+</head>
+<body>
+<div id="fatal" class="fatal" hidden></div>
+
+<header class="top">
+  <div class="top-in">
+    <div class="brand">
+      <div class="seal" aria-hidden="true">国</div>
+      <div class="bt">
+        <div class="b1">广西国控 · 笔试冲刺</div>
+        <div class="b2">2026 秋招 · 昌菱制糖 配电员</div>
+      </div>
+      <button class="foldbtn" data-act="fold" aria-label="折叠或展开统计区" aria-expanded="true" id="foldBtn">⌃</button>
+    </div>
+    <div class="pbar" role="progressbar" aria-label="当前范围进度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="pbar"><i id="pfill"></i></div>
+    <div class="ctrl">
+      <div class="seg" role="group" aria-label="模式">
+        <button data-mode="practice" aria-pressed="true">练习</button>
+        <button data-mode="exam" aria-pressed="false">考试</button>
+        <button data-mode="short" aria-pressed="false">简答</button>
+      </div>
+      <button class="mini" data-act="order" id="orderBtn">顺序出题</button>
+      <button class="mini" data-act="stats">数据</button>
+    </div>
+    <div class="stats" id="stats"></div>
+    <div class="chips" id="chips"></div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="col-main">
+    <div id="qzone"></div>
+    <div class="dock"><div class="dock-in" id="dock"></div></div>
+  </div>
+  <aside class="rail" id="rail"></aside>
+</main>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div id="sheetRoot"></div>
+<noscript><div class="noscript">本页面需要浏览器启用 JavaScript 才能刷题，请更换浏览器或开启脚本后重试。</div></noscript>
+
+<script>
+(function () {
+  'use strict';
+
+  /* =====================================================================
+     题库：加题格式（追加到数组末尾即可，功能与样式无需改动）
+     { id, type:'single'|'multi'|'judge', subject, stem, options:[], answer:[], explain }
+  ===================================================================== */
+  const QUESTIONS = [
+    /* ---------- 电工基础 15 ---------- */
+    { id:1, type:'single', subject:'电工基础',
+      stem:'两个阻值均为 R 的电阻并联，等效电阻为（ ）。',
+      options:['R/2','2R','R','R/4'], answer:[0],
+      explain:'并联电路 1/R总 = 1/R + 1/R = 2/R，所以 R总 = R/2。若为串联才是 2R，注意区分。' },
+    { id:2, type:'single', subject:'电工基础',
+      stem:'串联电路中，流过各电阻的电流（ ）。',
+      options:['处处相等','与阻值成正比','与阻值成反比','依次减小'], answer:[0],
+      explain:'串联电路只有一条通路，电流处处相等；各电阻上的电压才按阻值成正比分配。' },
+    { id:3, type:'single', subject:'电工基础',
+      stem:'某正弦交流电压的最大值为 311V，其有效值约为（ ）。',
+      options:['220V','311V','155V','440V'], answer:[0],
+      explain:'有效值 U = Um/√2 = 311 ÷ 1.414 ≈ 220V。220V 市电指的就是有效值。（注意：1.732 是 √3，用于三相线值与相值的换算，别和 √2 混用。）' },
+    { id:4, type:'single', subject:'电工基础',
+      stem:'三相对称电源作星形连接，线电压为 380V，则相电压约为（ ）。',
+      options:['220V','380V','660V','110V'], answer:[0],
+      explain:'星形接法 U线 = √3·U相，U相 = 380 ÷ 1.732 ≈ 220V，且线电压超前相电压 30°。' },
+    { id:5, type:'single', subject:'电工基础',
+      stem:'三相对称负载作三角形连接时，线电流与相电流的关系是（ ）。',
+      options:['线电流 = √3 × 相电流','线电流 = 相电流','相电流 = √3 × 线电流','线电流 = 3 × 相电流'], answer:[0],
+      explain:'三角形接法线电流是相电流的 √3 倍，相位滞后 30°；星形接法则线电压是相电压的 √3 倍。' },
+    { id:6, type:'single', subject:'电工基础',
+      stem:'三相对称负载 U线 = 380V、I线 = 50A、cosφ = 0.8，其有功功率约为（ ）。',
+      options:['26.3kW','19kW','32.9kW','13.2kW'], answer:[0],
+      explain:'P = √3·U线·I线·cosφ = 1.732 × 380 × 50 × 0.8 ≈ 26326W ≈ 26.3kW。' },
+    { id:7, type:'single', subject:'电工基础',
+      stem:'一台变压器一、二次额定电压为 10000V / 400V，其变比约为（ ）。',
+      options:['25','40','2.5','0.04'], answer:[0],
+      explain:'变比 n = U1/U2 = 10000 ÷ 400 = 25。0.04 是它的倒数，属于降压变压器从二次侧看的一次电压比。' },
+    { id:8, type:'single', subject:'电工基础',
+      stem:'RLC 串联电路发生谐振时，电路呈（ ）。',
+      options:['纯电阻性，电流最大','纯电感性，电流最小','纯电容性，电压最大','阻抗最大，电流最小'], answer:[0],
+      explain:'谐振时 XL = XC 相互抵消，阻抗 Z = R 最小，电流 I = U/R 最大，功率因数等于 1。' },
+    { id:9, type:'single', subject:'电工基础',
+      stem:'工厂中提高功率因数最常用的方法是（ ）。',
+      options:['并联电容器','串联电容器','并联电阻','降低供电电压'], answer:[0],
+      explain:'并联电容器用容性无功抵消感性无功，不改变负载的有功功率，是最经济的补偿方式。' },
+    { id:10, type:'single', subject:'电工基础',
+      stem:'变压器空载试验主要用来测定（ ）。',
+      options:['铁损和励磁参数','铜损和短路参数','绕组温升','绝缘电阻'], answer:[0],
+      explain:'空载时二次侧开路，所加损耗近似全部为铁损，可求得励磁参数；铜损则由短路试验测定。' },
+    { id:11, type:'multi', subject:'电工基础',
+      stem:'关于基尔霍夫定律，下列说法正确的有（ ）。',
+      options:['KCL：流入节点的电流代数和为零','KVL：沿任一闭合回路各段电压代数和为零','对线性和非线性电路都适用','只适用于直流电路'], answer:[0,1,2],
+      explain:'KCL 依据电荷守恒，KVL 依据能量守恒，与元件是否线性无关，交直流都适用；选项「只适用于直流电路」错。' },
+    { id:12, type:'multi', subject:'电工基础',
+      stem:'关于叠加定理，下列说法正确的有（ ）。',
+      options:['只适用于线性电路','各独立源单独作用时，其余电压源短路、电流源开路','可以直接用来计算功率','各分量的响应可以代数相加'], answer:[0,1,3],
+      explain:'功率与电流的平方成正比，不满足线性关系，不能直接叠加，选项「可以直接用来计算功率」错；其余三个选项都是叠加定理的标准用法。' },
+    { id:13, type:'multi', subject:'电工基础',
+      stem:'无功补偿的作用包括（ ）。',
+      options:['提高功率因数','降低线路的有功损耗','提高变压器等设备的利用率','减少用户消耗的有功电量'], answer:[0,1,2],
+      explain:'补偿减少的是无功功率，用户真正消耗的有功电量不会因此减少，选项「减少用户消耗的有功电量」错。' },
+    { id:14, type:'judge', subject:'电工基础',
+      stem:'任何线性有源二端网络，对外电路都可以等效为一个电压源与一个电阻串联。（ ）',
+      options:['正确','错误'], answer:[0],
+      explain:'这就是戴维南定理：电压源为端口开路电压 Uoc，串联电阻为等效内阻 Req，适用于线性有源网络。' },
+    { id:15, type:'judge', subject:'电工基础',
+      stem:'三相三线制电路中，三相电流的相量和始终为零。（ ）',
+      options:['正确','错误'], answer:[0],
+      explain:'没有中性线就没有零序电流通路，三相电流相量和必为零；三相四线制中因有中性线电流，相量和才可能不为零。' },
+
+    /* ---------- 工厂供配电 12 ---------- */
+    { id:16, type:'single', subject:'工厂供配电',
+      stem:'某车间设备总容量 200kW，需要系数取 0.5，用需要系数法求得的有功计算负荷为（ ）。',
+      options:['100kW','200kW','400kW','50kW'], answer:[0],
+      explain:'Pjs = Kx·Pe = 0.5 × 200 = 100kW。需要系数法直接乘需要系数，不再乘功率因数。' },
+    { id:17, type:'single', subject:'工厂供配电',
+      stem:'停电倒闸操作的正确顺序是（ ）。',
+      options:['断路器 → 负荷侧隔离开关 → 电源侧隔离开关','电源侧隔离开关 → 负荷侧隔离开关 → 断路器','负荷侧隔离开关 → 断路器 → 电源侧隔离开关','断路器 → 电源侧隔离开关 → 负荷侧隔离开关'], answer:[0],
+      explain:'先断开断路器灭弧，再拉负荷侧隔离开关，最后拉电源侧隔离开关，避免带负荷拉刀闸。' },
+    { id:18, type:'single', subject:'工厂供配电',
+      stem:'送电倒闸操作的正确顺序是（ ）。',
+      options:['电源侧隔离开关 → 负荷侧隔离开关 → 断路器','断路器 → 负荷侧隔离开关 → 电源侧隔离开关','负荷侧隔离开关 → 电源侧隔离开关 → 断路器','电源侧隔离开关 → 断路器 → 负荷侧隔离开关'], answer:[0],
+      explain:'送电顺序与停电相反：先合电源侧隔离开关，再合负荷侧隔离开关，最后合断路器送电。' },
+    { id:19, type:'single', subject:'工厂供配电',
+      stem:'运行中的电流互感器二次侧严禁（ ）。',
+      options:['开路','短路','一点接地','接电流表'], answer:[0],
+      explain:'二次开路会使铁芯高度饱和、感应出危险高压，危及人身与设备；二次侧应一点接地但绝不允许开路。' },
+    { id:20, type:'single', subject:'工厂供配电',
+      stem:'运行中的电压互感器二次侧严禁（ ）。',
+      options:['短路','开路','一点接地','接电压表'], answer:[0],
+      explain:'电压互感器二次短路电流很大，会烧毁绕组，因此二次侧必须装熔断器作短路保护；二次侧允许一点接地。' },
+    { id:21, type:'single', subject:'工厂供配电',
+      stem:'TN-S 系统的特点是（ ）。',
+      options:['保护线 PE 与中性线 N 全程分开','PE 线与 N 线合为一根','设备外壳直接接地，与电源中性点无关','只适用于高压系统'], answer:[0],
+      explain:'TN-S 即三相五线制，PE 与 N 分开；PE 与 N 合一是 TN-C 系统，电源中性点不接地则是 IT 系统。' },
+    { id:22, type:'single', subject:'工厂供配电',
+      stem:'用于末端插座回路人身触电保护的漏电保护器，其额定动作电流一般不大于（ ）。',
+      options:['30mA，动作时间不大于 0.1s','100mA，0.5s','300mA，1s','500mA，2s'], answer:[0],
+      explain:'末级漏保常用 30mA、0.1s 以内的组合作为直接接触的附加保护；上级可逐级放大以保证选择性。' },
+    { id:23, type:'single', subject:'工厂供配电',
+      stem:'避雷器的主要作用是（ ）。',
+      options:['限制过电压，保护设备绝缘','直接吸引雷电流入地','提高系统功率因数','切断短路电流'], answer:[0],
+      explain:'避雷器与被保护设备并联，过电压时导通泄流、限制电压幅值；吸引雷电流入地的是避雷针。' },
+    { id:24, type:'single', subject:'工厂供配电',
+      stem:'选择电缆截面时，一般不需要考虑（ ）。',
+      options:['电缆外皮颜色','允许载流量','电压损失','短路热稳定'], answer:[0],
+      explain:'截面按允许载流量初选，再校验电压损失、短路热稳定和机械强度；外皮颜色与截面选择无关。' },
+    { id:25, type:'multi', subject:'工厂供配电',
+      stem:'下列属于“两票三制”内容的有（ ）。',
+      options:['工作票','操作票','交接班制','工作许可制度'], answer:[0,1,2],
+      explain:'两票为工作票、操作票；三制为交接班制、巡回检查制、设备定期试验轮换制。工作许可制度属于保证安全的组织措施，不属于“三制”。' },
+    { id:26, type:'multi', subject:'工厂供配电',
+      stem:'关于继电保护，下列说法正确的有（ ）。',
+      options:['应具有选择性，只切除故障设备','应具有速动性，尽快切除故障','应具有灵敏性，能反映保护范围内的故障','保护范围越大越好，可以越级切除'], answer:[0,1,2],
+      explain:'继电保护要求选择性、速动性、灵敏性和可靠性；越级跳闸会扩大停电范围，恰恰违背选择性。' },
+    { id:27, type:'judge', subject:'工厂供配电',
+      stem:'隔离开关没有灭弧装置，不能带负荷拉合。（ ）',
+      options:['正确','错误'], answer:[0],
+      explain:'隔离开关只能在断路器断开后操作，用来形成明显的断开点，带负荷拉合会产生电弧并造成事故。' },
+
+    /* ---------- 电机与电气控制 12 ---------- */
+    { id:28, type:'single', subject:'电机与电气控制',
+      stem:'一台四极三相异步电动机接 50Hz 电源，其旋转磁场的同步转速为（ ）。',
+      options:['1500 r/min','3000 r/min','1000 r/min','750 r/min'], answer:[0],
+      explain:'n1 = 60f/p = 60 × 50 ÷ 2 = 1500 r/min。四极电机极对数 p = 2，不是 4。' },
+    { id:29, type:'single', subject:'电机与电气控制',
+      stem:'一台四极三相异步电动机接 50Hz 电源，同步转速 1500 r/min，实际转速 1440 r/min，转差率约为（ ）。',
+      options:['4%','2%','6%','96%'], answer:[0],
+      explain:'s = (n1 − n)/n1 = (1500 − 1440) ÷ 1500 = 0.04，即 4%。' },
+    { id:30, type:'single', subject:'电机与电气控制',
+      stem:'Y-△ 降压启动适用于（ ）。',
+      options:['正常运行时为三角形接法、轻载启动的电动机','正常运行时为星形接法的电动机','任何容量的电动机','直流电动机'], answer:[0],
+      explain:'启动时将三角形接法的绕组改接成星形，绕组电压降为 1/√3，启动电流和启动转矩都降为直接启动的 1/3。' },
+    { id:31, type:'single', subject:'电机与电气控制',
+      stem:'热继电器在电动机控制电路中的作用是（ ）。',
+      options:['过载保护','短路保护','失压保护','欠压保护'], answer:[0],
+      explain:'热继电器靠双金属片受热弯曲动作，反映的是持续过载；短路电流大、动作太快，短路保护必须由熔断器或断路器完成。' },
+    { id:32, type:'single', subject:'电机与电气控制',
+      stem:'接触器自锁控制电路中，停止按钮应（ ）。',
+      options:['采用常闭触点串联在控制回路中','采用常开触点并联在启动按钮两端','串联在主电路中','并联在线圈两端'], answer:[0],
+      explain:'停止按钮串常闭触点，按下即断开控制回路使线圈失电；并联在启动按钮两端的是接触器常开辅助触点，起自锁作用。' },
+    { id:33, type:'single', subject:'电机与电气控制',
+      stem:'电动机正反转控制电路必须设置（ ）。',
+      options:['互锁，防止两只接触器同时吸合造成相间短路','自锁，保证连续运行','热继电器自动复位','降压启动'], answer:[0],
+      explain:'正反转两只接触器若同时吸合，会把电源两相直接短路，因此必须设置电气互锁（必要时再加机械互锁）。' },
+    { id:34, type:'single', subject:'电机与电气控制',
+      stem:'变频器采用 U/f 控制时保持电压与频率的比值恒定，主要是为了（ ）。',
+      options:['保持电动机磁通基本恒定','提高功率因数','降低启动电流','减少谐波'], answer:[0],
+      explain:'频率下降时若电压不随之下降，磁通会增大导致磁路饱和、励磁电流剧增，所以要保持 U/f 恒定。' },
+    { id:35, type:'single', subject:'电机与电气控制',
+      stem:'三相异步电动机缺相运行时的典型现象是（ ）。',
+      options:['转速下降、电流增大、绕组发热甚至烧毁','立即停转且电流为零','转速升高、电流减小','温升明显下降'], answer:[0],
+      explain:'缺相后其余两相绕组电流剧增、转矩下降，长时间运行会烧毁绕组，发现缺相应立即停机检查。' },
+    { id:36, type:'single', subject:'电机与电气控制',
+      stem:'糖厂潮湿、高温环境中的泵类电动机，日常维护的重点是（ ）。',
+      options:['定期测量绝缘电阻，检查接线盒密封和散热','经常拆开绕组清洗','提高供电电压','取消热继电器'], answer:[0],
+      explain:'潮湿会使绝缘电阻下降，高温加速绝缘老化，因此要重点做绝缘测试、密封防潮和通风散热，热继电器不能取消。' },
+    { id:37, type:'multi', subject:'电机与电气控制',
+      stem:'下列属于三相异步电动机降压启动方式的有（ ）。',
+      options:['Y-△ 降压启动','自耦变压器降压启动','软启动器启动','直接启动'], answer:[0,1,2],
+      explain:'直接启动时启动电流可达额定电流的 4~7 倍，不属于降压启动；Y-△ 降压启动、自耦变压器降压启动和软启动器启动都通过降低启动电压来限制启动电流。' },
+    { id:38, type:'judge', subject:'电机与电气控制',
+      stem:'热继电器可以用作电动机的短路保护。（ ）',
+      options:['正确','错误'], answer:[1],
+      explain:'热继电器有热惯性，短路时来不及动作，不能代替熔断器或断路器；它只承担过载保护。' },
+    { id:39, type:'judge', subject:'电机与电气控制',
+      stem:'转差率越小，说明电动机转速越接近同步转速。（ ）',
+      options:['正确','错误'], answer:[0],
+      explain:'s = (n1 − n)/n1，s 越小 n 越接近 n1；s = 0 时转速就等于同步转速，但异步电动机实际运行必须留有转差。' },
+
+    /* ---------- 电子技术 9 ---------- */
+    { id:40, type:'single', subject:'电子技术',
+      stem:'二极管最主要的特性是（ ）。',
+      options:['单向导电性','放大作用','稳压作用','储能作用'], answer:[0],
+      explain:'二极管正向导通、反向截止，这是整流、检波等应用的基础；放大靠三极管，稳压靠稳压管的反向击穿特性。' },
+    { id:41, type:'single', subject:'电子技术',
+      stem:'单相桥式整流电路，变压器二次电压有效值 U2 = 20V，输出直流电压平均值约为（ ）。',
+      options:['18V','9V','20V','28V'], answer:[0],
+      explain:'桥式整流 Uo ≈ 0.9U2 = 0.9 × 20 = 18V；半波整流才是 0.45U2 = 9V。' },
+    { id:42, type:'single', subject:'电子技术',
+      stem:'稳压二极管正常稳压时工作在（ ）。',
+      options:['反向击穿区','正向导通区','反向截止区','饱和区'], answer:[0],
+      explain:'稳压管反向击穿后，电流在较大范围内变化而电压基本不变，使用时必须串联限流电阻。' },
+    { id:43, type:'single', subject:'电子技术',
+      stem:'三极管工作在放大区的外部条件是（ ）。',
+      options:['发射结正偏、集电结反偏','发射结、集电结都正偏','发射结、集电结都反偏','发射结反偏、集电结正偏'], answer:[0],
+      explain:'发射结正偏、集电结反偏是放大区；两结都正偏为饱和区，都反偏为截止区。' },
+    { id:44, type:'single', subject:'电子技术',
+      stem:'共射极放大电路输出电压与输入电压的相位关系是（ ）。',
+      options:['反相','同相','相差 90°','无关'], answer:[0],
+      explain:'输入增大使集电极电流增大、集电极电位下降，所以输出与输入反相；共集电极电路才是同相。' },
+    { id:45, type:'single', subject:'电子技术',
+      stem:'理想运放工作在线性区时“虚短”成立的条件是（ ）。',
+      options:['电路存在深度负反馈','运放处于开环状态','运放用作比较器','输出已经饱和'], answer:[0],
+      explain:'深度负反馈使两输入端电位近似相等，即虚短；开环或作比较器时只有“虚断”，没有“虚短”。' },
+    { id:46, type:'multi', subject:'电子技术',
+      stem:'关于基本逻辑门，下列说法正确的有（ ）。',
+      options:['与门：有 0 出 0，全 1 出 1','或门：有 1 出 1，全 0 出 0','非门：输出与输入相反','异或门：两输入相同时输出 1'], answer:[0,1,2],
+      explain:'异或门在两输入相同时输出 0、不同时输出 1，选项「异或门：两输入相同时输出 1」错；与门、或门、非门这三项的表述都是标准逻辑关系。' },
+    { id:47, type:'judge', subject:'电子技术',
+      stem:'晶闸管一旦导通，门极就失去控制作用。（ ）',
+      options:['正确','错误'], answer:[0],
+      explain:'晶闸管是半控型器件，触发导通后门极不再起作用，只能靠主电路电流降到维持电流以下来关断。' },
+    { id:48, type:'judge', subject:'电子技术',
+      stem:'单相半波整流电路输出直流电压平均值约为 0.45U2。（ ）',
+      options:['正确','错误'], answer:[0],
+      explain:'半波整流 Uo ≈ 0.45U2，桥式整流 Uo ≈ 0.9U2，这是两类电路最常考的差别。' },
+
+    /* ---------- 电气安全 6 ---------- */
+    { id:49, type:'single', subject:'电气安全',
+      stem:'在金属容器内或特别潮湿场所使用行灯，安全电压不应超过（ ）。',
+      options:['12V','36V','42V','220V'], answer:[0],
+      explain:'安全电压额定值为 42/36/24/12/6V；特别潮湿、金属容器内触电危险大，应选用 12V 及以下。' },
+    { id:50, type:'single', subject:'电气安全',
+      stem:'停电作业安全技术措施的五步中，第三步是（ ）。',
+      options:['装设接地线','停电','验电','悬挂标示牌和装设遮栏'], answer:[0],
+      explain:'五步顺序为停电 → 验电 → 装设接地线 → 悬挂标示牌和装设遮栏，接地线必须在验明无电后立即装设。' },
+    { id:51, type:'single', subject:'电气安全',
+      stem:'发现有人触电，首先应当（ ）。',
+      options:['迅速使触电者脱离电源','立即进行心肺复苏','打电话报告领导','给触电者喂水'], answer:[0],
+      explain:'必须先脱离电源再施救，否则施救者也会触电；脱离电源后根据情况做心肺复苏并及时呼救。' },
+    { id:52, type:'single', subject:'电气安全',
+      stem:'电气设备发生火灾时，正确的处理是（ ）。',
+      options:['先切断电源，再用干粉或二氧化碳灭火器灭火','先用水扑灭明火','直接用手拉开燃烧的设备','等待火势自行熄灭'], answer:[0],
+      explain:'带电灭火严禁用水和泡沫灭火剂，应先切断电源，再用干粉或二氧化碳灭火器扑救。' },
+    { id:53, type:'multi', subject:'电气安全',
+      stem:'下列属于防止直接接触电击的措施有（ ）。',
+      options:['绝缘','屏护与遮栏','保证安全距离','保护接地'], answer:[0,1,2],
+      explain:'绝缘、屏护、安全距离用于防止人体直接触及带电体；保护接地属于间接接触电击防护，不属于防止直接接触的措施，该项错。' },
+    { id:54, type:'judge', subject:'电气安全',
+      stem:'一般情况下，保护接地电阻不应大于 4Ω。（ ）',
+      options:['正确','错误'], answer:[0],
+      explain:'接地电阻过大时故障电流小、外壳对地电压高，保护作用失效，所以一般要求不大于 4Ω。' },
+
+    /* ---------- 集团背景与企业文化 6 ---------- */
+    { id:55, type:'single', subject:'集团背景与企业文化',
+      stem:'广西国控的全称是（ ）。',
+      options:['广西国控资本运营集团有限责任公司','广西国有资本投资集团有限公司','广西国控资产管理有限责任公司','广西国控食品产业集团有限公司'], answer:[0],
+      explain:'全称为“广西国控资本运营集团有限责任公司”，简称“广西国控”；其余名称为干扰项。' },
+    { id:56, type:'single', subject:'集团背景与企业文化',
+      stem:'广西国控成立于（ ）。',
+      options:['2025 年 7 月','2024 年 7 月','2025 年 1 月','2023 年 12 月'], answer:[0],
+      explain:'集团于 2025 年 7 月成立，是自治区直属国有独资企业，注册资本 110 亿元且已实缴。' },
+    { id:57, type:'single', subject:'集团背景与企业文化',
+      stem:'广西国控的注册资本为（ ）。',
+      options:['110 亿元','100 亿元','3651 亿元','10 亿元'], answer:[0],
+      explain:'注册资本 110 亿元且已实缴；3651 亿元是集团资产总额，两个数字不要混淆。' },
+    { id:58, type:'single', subject:'集团背景与企业文化',
+      stem:'广西国控的战略使命是（ ）。',
+      options:['聚资强国 创利惠民','产业报国 服务广西','创新驱动 绿色发展','做强做优 做大国有资本'], answer:[0],
+      explain:'“聚资强国 创利惠民”既是战略使命，也是品牌推广语，两者口径一致。' },
+    { id:59, type:'multi', subject:'集团背景与企业文化',
+      stem:'广西国控的三大核心功能包括（ ）。',
+      options:['战略保障','资本运作','产业引领','食品加工'], answer:[0,1,2],
+      explain:'三大核心功能为战略保障、资本运作、产业引领；“全国一流食品产业集团”属于两大目标之一，不是核心功能。' },
+    { id:60, type:'judge', subject:'集团背景与企业文化',
+      stem:'广西国控的吉祥物“国小宝”于 2026 年 1 月 28 日正式发布。（ ）',
+      options:['正确','错误'], answer:[0],
+      explain:'“国小宝”是集团的吉祥物与超级 IP，2026 年 1 月 28 日发布，形象为红色印章形脑袋配白衬衫领带，官方人设“元气代言人、职场暖团子”。' },
+
+    /* ---------- 追加 · 电工基础 15 ---------- */
+    { id:61, type:'single', subject:'电工基础',
+      stem:'一段电阻丝两端加 12V 电压时，通过它的电流为 0.4A，该电阻丝的阻值为（ ）。',
+      options:['4.8Ω','30Ω','0.033Ω','15Ω'], answer:[1],
+      explain:'由欧姆定律 R = U/I = 12 ÷ 0.4 = 30Ω。4.8Ω 是把电压与电流相乘的误算，0.033Ω 是把 I/U 当成 R，15Ω 是把电压误当作 6V 的结果。' },
+    { id:62, type:'single', subject:'电工基础',
+      stem:'电阻 R1 = 12Ω 与 R2 = 6Ω 并联后，再与 R3 = 6Ω 串联，电路的总电阻为（ ）。',
+      options:['4Ω','24Ω','10Ω','18Ω'], answer:[2],
+      explain:'R1 与 R2 并联：12×6/(12+6) = 4Ω，再与 R3 串联：R总 = 4 + 6 = 10Ω。24Ω 是三个电阻全部串联的误算，4Ω 只算了并联部分。' },
+    { id:63, type:'single', subject:'电工基础',
+      stem:'某节点连接四条支路，其中两条支路电流流入节点、大小分别为 3A 和 5A，第三条支路电流流出节点、大小为 4A，则第四条支路电流为（ ）。',
+      options:['4A，流出节点','4A，流入节点','12A，流出节点','2A，流入节点'], answer:[0],
+      explain:'由 KCL，流入节点的电流之和等于流出节点的电流之和：3 + 5 = 4 + I，得 I = 4A，且方向为流出。12A 是三个已知电流直接相加，2A 是两流入电流之差，均不符合 KCL。' },
+    { id:64, type:'single', subject:'电工基础',
+      stem:'一个由电动势 E = 12V 的电源和两只电阻 R1、R2 串联组成的闭合回路（忽略电源内阻），已知 R1 两端电压为 5V，则 R2 两端电压为（ ）。',
+      options:['7V','17V','5V','12V'], answer:[0],
+      explain:'由 KVL，沿闭合回路各段电压代数和为零，即 E = U1 + U2，故 U2 = 12 − 5 = 7V。17V 是把两段电压相加，5V 是误认为两电阻电压相等。' },
+    { id:65, type:'single', subject:'电工基础',
+      stem:'线性电路中，某支路电流在电压源单独作用时为 2A，在电流源单独作用时为 3A，且两者实际方向相同，则两电源共同作用时该支路电流为（ ）。',
+      options:['1A','5A','6A','3.5A'], answer:[1],
+      explain:'叠加定理：各独立源单独作用产生的响应可以代数相加，方向相同时 I = 2 + 3 = 5A。1A 是两分量方向相反时的结果，6A 是把两电流相乘的误算。' },
+    { id:66, type:'single', subject:'电工基础',
+      stem:'某线性有源二端网络，测得端口开路电压为 12V，短路电流为 3A，则其戴维南等效内阻为（ ）。',
+      options:['36Ω','0.25Ω','4Ω','15Ω'], answer:[2],
+      explain:'戴维南等效内阻 Req = Uoc/Isc = 12 ÷ 3 = 4Ω。36Ω 是把两数相乘，0.25Ω 是把 I/U 关系颠倒，15Ω 是把两数相加。' },
+    { id:67, type:'single', subject:'电工基础',
+      stem:'正弦电压 u = 100sin(314t + 30°) V，正弦电流 i = 5sin(314t − 60°) A，则电压与电流的相位差为（ ）。',
+      options:['90°，电流超前电压 90°','90°，电压超前电流 90°','30°，电压超前电流 30°','150°，电压超前电流 150°'], answer:[1],
+      explain:'相位差 Δφ = φu − φi = 30° − (−60°) = 90° > 0，说明电压超前电流 90°，这是纯电感电路的特征。方向说反或把相位差误算成 30° 都是常见错误。' },
+    { id:68, type:'single', subject:'电工基础',
+      stem:'R = 3Ω、XL = 6Ω、XC = 2Ω 的 RLC 串联电路，其阻抗为（ ）。',
+      options:['7Ω','4Ω','5Ω','1Ω'], answer:[2],
+      explain:'先求电抗 X = XL − XC = 6 − 2 = 4Ω，再按直角三角形合成阻抗 Z = √(R² + X²) = √(3² + 4²) = 5Ω。7Ω 是把 R 与 X 直接相加，4Ω 只算了电抗，1Ω 是把 R 与 X 直接相减。' },
+    { id:69, type:'single', subject:'电工基础',
+      stem:'RLC 串联电路中，L = 1H、C = 1μF，其谐振频率约为（ ）。',
+      options:['50Hz','159Hz','1592Hz','1000Hz'], answer:[1],
+      explain:'谐振频率 f0 = 1/(2π√(LC)) = 1/(2π×√(1×10⁻⁶)) = 1/(2π×10⁻³) ≈ 159Hz。1592Hz 是把结果多放大 10 倍的误算，50Hz 是工频，与 L、C 的取值无关。' },
+    { id:70, type:'single', subject:'电工基础',
+      stem:'一台三相电动机接在线电压 10kV 的对称电源上，线电流为 100A，功率因数为 0.85，其输入有功功率约为（ ）。',
+      options:['1732kW','1251kW','1472kW','850kW'], answer:[2],
+      explain:'P = √3·U线·I线·cosφ = 1.732 × 10000 × 100 × 0.85 ≈ 1.472×10⁶W = 1472kW。1732kW 漏乘功率因数，1251kW 是重复乘了一次 0.85，850kW 漏乘了 √3。' },
+    { id:71, type:'single', subject:'电工基础',
+      stem:'三相对称负载作三角形连接，接在线电压 380V 的对称电源上，测得线电流为 30A，则负载的相电流约为（ ）。',
+      options:['17.3A','30A','51.9A','10A'], answer:[0],
+      explain:'三角形接法线电流是相电流的 √3 倍，故 I相 = I线/√3 = 30 ÷ 1.732 ≈ 17.3A，且相电压等于线电压 380V。51.9A 是把 √3 关系用反、误乘 √3 的结果。' },
+    { id:72, type:'multi', subject:'电工基础',
+      stem:'关于三相四线制电路中中性线（中线）的作用，下列说法正确的有（ ）。',
+      options:['为星形连接的不对称负载提供电流通路，使各相电压保持对称','中性线上不允许装设熔断器和开关','中性线断开时，三相不对称负载的相电压可能严重偏移，甚至烧坏设备','三相三线制电路也必须装设中性线才能正常工作'], answer:[0,1,2],
+      explain:'中性线的作用是保证星形不对称负载各相电压对称，因此中性线上严禁装设开关和熔断器，一旦断线会造成中性点位移、烧坏设备；三相三线制靠三相对称运行，不需要中性线，选项「三相三线制电路也必须装设中性线才能正常工作」错。' },
+    { id:73, type:'multi', subject:'电工基础',
+      stem:'某感性负载的有功功率 P = 8kW，视在功率 S = 10kVA，下列说法正确的有（ ）。',
+      options:['功率因数 cosφ = P/S = 0.8','无功功率 Q = √(S² − P²) = 6kvar','该负载的电流滞后于电压','该负载的无功功率 Q = 8kvar'], answer:[0,1,2],
+      explain:'由功率三角形 S² = P² + Q²，得 Q = √(10² − 8²) = 6kvar，cosφ = P/S = 0.8；感性负载电流滞后电压，选项「该负载的无功功率 Q = 8kvar」把有功功率误当成了无功功率。' },
+    { id:74, type:'judge', subject:'电工基础',
+      stem:'变压器二次侧负载阻抗折算到一次侧时，应除以变比的平方。（ ）',
+      options:['正确','错误'], answer:[1],
+      explain:'折算到一次侧应乘变比的平方，即 Z1 = n²Z2；例如变比 n = 10、二次侧接 8Ω 负载时，折算到一次侧为 10² × 8 = 800Ω，故题述“除以”是错误的。' },
+    { id:75, type:'judge', subject:'电工基础',
+      stem:'变压器效率最高时，其铁损与铜损相等。（ ）',
+      options:['正确','错误'], answer:[0],
+      explain:'变压器效率 η = P2/(P2 + PFe + PCu)，当可变损耗（铜损）等于不变损耗（铁损）时效率最高，一般出现在 50%~75% 额定负载附近；铁损由空载试验测定，铜损由短路试验测定。' },
+
+    /* ---------- 追加 · 工厂供配电 18 ---------- */
+    { id:76, type:'single', subject:'工厂供配电',
+      stem:'校验高压开关电器、母线等设备的动稳定性时，应采用（ ）。',
+      options:['短路冲击电流','短路电流周期分量有效值','短路稳态电流','短路电流的热效应'], answer:[0],
+      explain:'冲击电流是短路后约半个周期内短路全电流的最大瞬时值，产生最大的电动力，因此用来校验设备的动稳定；周期分量有效值用于校验开断能力，热效应用于校验热稳定。' },
+    { id:77, type:'single', subject:'工厂供配电',
+      stem:'在高压配电装置中，既能接通和切断正常负荷电流，又能切断短路电流的开关电器是（ ）。',
+      options:['高压断路器','隔离开关','负荷开关','熔断器'], answer:[0],
+      explain:'断路器有完善的灭弧装置，可以带负荷分合闸并切断短路电流；隔离开关没有灭弧能力，只用来隔离电源并形成明显断开点；负荷开关只能切正常负荷电流，熔断器虽能切断短路电流但不能用于正常分合负荷。' },
+    { id:78, type:'single', subject:'工厂供配电',
+      stem:'上级断路器与下级熔断器串联保护同一段线路，为保证保护的选择性，故障时应（ ）。',
+      options:['下级熔断器先熔断，上级断路器不越级跳闸','上级断路器先跳闸，下级熔断器不熔断','上下两级同时动作，尽快切除故障','由运行人员手动拉开上级隔离开关'], answer:[0],
+      explain:'选择性要求由离故障点最近的保护先切除故障，所以上级断路器的整定值应大于下级熔断器的熔断特性并留有时间级差；上级先跳或两级同时动作都会扩大停电范围，手动操作更不属于保护配合。' },
+    { id:79, type:'single', subject:'工厂供配电',
+      stem:'电流互感器采用减极性接线时，一次绕组端子 P1、P2 与二次绕组端子 S1、S2 的对应关系是（ ）。',
+      options:['P1 与 S1 为同名端（极性端）','P1 与 S2 为同名端','P1、P2 与 S1、S2 没有固定对应关系','S1、S2 可以任意接线，不影响测量和保护'], answer:[0],
+      explain:'减极性规定一次电流从 P1 流入时二次电流从 S1 流出，即 P1 与 S1 为同名端，这样二次电流与一次电流同相位，测量和保护才正确；极性接反会使差动保护误动、功率和电能计量出现方向错误。' },
+    { id:80, type:'single', subject:'工厂供配电',
+      stem:'定时限过电流保护的动作电流整定，应躲过被保护线路的（ ）。',
+      options:['最大负荷电流，并考虑电动机自启动的影响','最小负荷电流','线路的额定电流','短路电流的稳态值'], answer:[0],
+      explain:'过流保护必须避开正常运行时的最大负荷电流，否则负荷高峰或电动机自启动时会误动，整定式为 Iop = Krel·Kss·ILmax/Kre；按最小负荷电流或额定电流整定都会导致运行中误动。' },
+    { id:81, type:'single', subject:'工厂供配电',
+      stem:'电流速断保护的动作电流按躲过被保护线路末端的最大短路电流整定，因此其保护范围（ ）。',
+      options:['不能覆盖线路全长，线路末端存在死区','可以覆盖线路全长并延伸到下一级','由负荷电流大小决定','与短路电流无关，始终为线路全长'], answer:[0],
+      explain:'速断的整定值大于线路末端最大短路电流，所以线路末端附近短路时保护不动作，存在死区，必须由过电流保护或带时限速断作为后备；它动作快，但不能保护全长。' },
+    { id:82, type:'single', subject:'工厂供配电',
+      stem:'关于 TT 系统与 TN-C-S 系统，下列说法正确的是（ ）。',
+      options:['TT 系统设备外壳单独接地，与电源中性点接地无电气连接；TN-C-S 系统前段 PEN 合一、后段分开','TT 系统的 PE 线与 N 线全程合一','TN-C-S 系统设备外壳直接接地，与电源中性点无关','两个系统的设备外壳接地方式完全相同'], answer:[0],
+      explain:'TT 系统电源中性点直接接地，设备外壳接各自的接地装置，两者之间没有保护线连接；TN-C-S 系统从电源侧起 PEN 线合一，到某点后分为 PE 线和 N 线，设备外壳接 PE 线。' },
+    { id:83, type:'single', subject:'工厂供配电',
+      stem:'在 TN 系统中，将 PE 线或 PEN 线在电源中性点以外多处再次接地称为重复接地，其主要作用是（ ）。',
+      options:['降低 PE 线断线时设备外壳的对地电压，减轻触电危险','提高系统的功率因数','增大漏电保护器的动作电流','代替保护接零'], answer:[0],
+      explain:'重复接地在 PE 或 PEN 线断线时把设备外壳对地电压限制在较低水平，并缩短故障持续时间，重复接地电阻一般不大于 10Ω；它不能代替保护接零，也与功率因数和漏电动作电流无关。' },
+    { id:84, type:'single', subject:'工厂供配电',
+      stem:'按允许载流量选择电缆截面时，若电缆多根并列敷设且环境温度较高，其允许载流量应（ ）。',
+      options:['乘以温度校正系数和并列敷设校正系数，两个系数均小于 1','直接采用产品样本给出的额定载流量','乘以大于 1 的系数以提高载流量','按最高环境温度计算后不再校正'], answer:[0],
+      explain:'样本载流量是在标准环境温度和单根敷设条件下给出的，实际环境温度高、多根并列时散热变差，必须分别乘以小于 1 的温度校正系数和并列校正系数；不修正会因过热加速绝缘老化甚至引发火灾。' },
+    { id:85, type:'single', subject:'工厂供配电',
+      stem:'某三相 380V 线路，负荷电流 100A，cosφ = 0.8，每相线路电阻 0.05Ω，忽略电抗，线路电压损失约为（ ）。',
+      options:['6.9V','4.0V','8.7V','12V'], answer:[0],
+      explain:'ΔU = √3·I·R·cosφ = 1.732 × 100 × 0.05 × 0.8 ≈ 6.9V，约占额定电压的 1.8%；漏掉 √3 会得到 4V，漏掉 cosφ 会得到 8.7V，都是常见错误。' },
+    { id:86, type:'single', subject:'工厂供配电',
+      stem:'某车间有功计算负荷 P = 100kW，补偿前 cosφ1 = 0.8（tanφ1 = 0.75），补偿后要求 cosφ2 = 0.95（tanφ2 ≈ 0.33），需装设的电容器容量约为（ ）。',
+      options:['42kvar','75kvar','33kvar','100kvar'], answer:[0],
+      explain:'Qc = P(tanφ1 − tanφ2) = 100 × (0.75 − 0.33) = 42kvar；只乘 tanφ1 会得到 75kvar、只乘 tanφ2 会得到 33kvar，都是公式用法错误。' },
+    { id:87, type:'single', subject:'工厂供配电',
+      stem:'中断供电将造成人身伤亡、重大设备损坏或重大经济损失的用电负荷，属于（ ）。',
+      options:['一级负荷','二级负荷','三级负荷','临时负荷'], answer:[0],
+      explain:'一级负荷中断供电的后果最严重，应由两个独立电源供电，特别重要的负荷还应增设应急电源；二级负荷中断供电只造成较大损失，三级负荷为一般负荷。' },
+    { id:88, type:'single', subject:'工厂供配电',
+      stem:'在电气设备上工作，工作票是准许工作的书面命令，而倒闸操作必须使用（ ）。',
+      options:['操作票','工作票','事故应急票','口头命令'], answer:[0],
+      explain:'倒闸操作必须填写操作票并按票逐项操作、执行监护；工作票用于设备检修等现场作业，是准许工作的书面命令，两者用途不同，不能互相代替。' },
+    { id:89, type:'multi', subject:'工厂供配电',
+      stem:'两台配电变压器并列运行，必须满足的条件包括（ ）。',
+      options:['变比相同','连接组别相同','短路电压（阻抗电压）百分数相近','两台变压器的容量必须完全相等'], answer:[0,1,2],
+      explain:'变比不同会在并列回路中产生环流，连接组别不同会造成二次侧相位差、相当于短路，阻抗电压相差过大会使负荷分配不均，这三条是并列运行的基本条件；容量只要求相近（容量比一般不超过 3:1），并非必须完全相等，选项「两台变压器的容量必须完全相等」错。' },
+    { id:90, type:'multi', subject:'工厂供配电',
+      stem:'电力系统发生短路时，可能造成的危害有（ ）。',
+      options:['巨大的短路电流产生高温，烧毁设备和电缆','电动力使导体和设备变形、损坏','系统电压骤降，影响其他用户正常用电','提高线路功率因数，减少有功损耗'], answer:[0,1,2],
+      explain:'短路电流可达正常电流的几十倍，热效应和电动力都会损坏设备，短路点电压骤降还可能破坏系统稳定；短路只会使功率因数恶化，选项「提高线路功率因数，减少有功损耗」错。' },
+    { id:91, type:'multi', subject:'工厂供配电',
+      stem:'高压开关柜的“五防”包括（ ）。',
+      options:['防止误分、误合断路器','防止带负荷分、合隔离开关','防止带电挂（合）接地线（接地开关）','防止小动物进入配电室'], answer:[0,1,2],
+      explain:'五防还包括防止带接地线（接地开关）合断路器和防止误入带电间隔；防止小动物进入属于配电室的日常防护措施，不在五防之列。' },
+    { id:92, type:'judge', subject:'工厂供配电',
+      stem:'三相交流母线的 A、B、C 三相分别涂黄色、绿色、红色，中性线涂淡蓝色。（ ）',
+      options:['正确','错误'], answer:[0],
+      explain:'按国家标准，A、B、C 三相母线依次涂黄、绿、红，中性线涂淡蓝色，保护接地线涂黄绿相间，颜色与相序一一对应，便于运行中识别。' },
+    { id:93, type:'judge', subject:'工厂供配电',
+      stem:'低压三相五线制线路中，为节省导线，可以将中性线 N 与保护线 PE 合并为一根 PEN 线使用。（ ）',
+      options:['正确','错误'], answer:[1],
+      explain:'三相五线制要求 N 线与 PE 线全程分开，PE 线正常时不通过工作电流；两者合并为 PEN 线就变成 TN-C 系统，失去专用保护线的作用，所以错误。' },
+
+    /* ---------- 追加 · 电机与电气控制 15 ---------- */
+    { id:94, type:'single', subject:'电机与电气控制',
+      stem:'一台三相异步电动机采用自耦降压启动，自耦变压器的抽头电压为额定电压的 60%，其启动转矩约为直接启动时的（ ）。',
+      options:['36%','60%','40%','18%'], answer:[0],
+      explain:'启动转矩与电压的平方成正比，即 T ∝ U²，所以启动转矩为直接启动的 0.6² = 36%；启动电流同样降为 36%。抽头选得越低启动转矩越小，必须满足负载的启动转矩要求。' },
+    { id:95, type:'single', subject:'电机与电气控制',
+      stem:'软启动器实现电动机平滑启动，主要是通过（ ）。',
+      options:['晶闸管调压，使输出电压由低逐渐升高到额定值','改变电源频率','在定子回路串入固定电阻','改变电动机的极对数'], answer:[0],
+      explain:'软启动器用反并联晶闸管组成调压电路，启动时输出电压逐步升高，启动电流一般限制在额定电流的 2~4 倍；启动结束后由旁路接触器将软启动器短接。' },
+    { id:96, type:'single', subject:'电机与电气控制',
+      stem:'变频器的输出端 U、V、W 应接（ ）。',
+      options:['电动机，且严禁接电容器或工频电源','三相电源进线','制动电阻','控制回路电源'], answer:[0],
+      explain:'变频器输入侧 R、S、T 接三相电源，输出侧 U、V、W 接电动机；输出侧严禁接电容器和工频电源，否则会损坏逆变管甚至造成短路。' },
+    { id:97, type:'single', subject:'电机与电气控制',
+      stem:'变频器的加速时间设置过短，最容易引起（ ）。',
+      options:['过电流保护动作跳闸','欠电压保护动作','输出频率低于设定值','电动机自动反转'], answer:[0],
+      explain:'加速时间过短时频率上升太快，转子跟不上旋转磁场，转差增大、定子电流剧增，容易触发过流保护；加速时间应按负载惯量适当设定。' },
+    { id:98, type:'single', subject:'电机与电气控制',
+      stem:'某电动机额定电流为 20A，热继电器热元件的整定电流一般取额定电流的 1.1~1.25 倍，应整定为（ ）。',
+      options:['22~25A','18~20A','30~35A','10~12A'], answer:[0],
+      explain:'20 × 1.1 = 22A，20 × 1.25 = 25A，故整定在 22~25A。整定过大起不到过载保护作用，过小则电动机正常运行时就会频繁误动作。' },
+    { id:99, type:'single', subject:'电机与电气控制',
+      stem:'实现多地控制同一台电动机时，按钮的正确接法是（ ）。',
+      options:['各启动按钮并联，各停止按钮串联','各启动按钮串联，各停止按钮并联','启动按钮和停止按钮全部并联','启动按钮和停止按钮全部串联'], answer:[0],
+      explain:'启动按钮并联后任一处按下都能启动，停止按钮串联后任一处按下都能停车；若两者接反，则无法实现多地操作。' },
+    { id:100, type:'single', subject:'电机与电气控制',
+      stem:'绕线式三相异步电动机在转子回路串入电阻启动，其主要作用是（ ）。',
+      options:['减小启动电流，同时增大启动转矩','减小启动电流，同时减小启动转矩','提高电动机的同步转速','使电动机启动后不再需要转差'], answer:[0],
+      explain:'转子串电阻提高了转子回路的功率因数，使启动转矩增大；同时限制转子电流，定子侧的启动电流也随之减小，这是绕线式电动机优于笼型的启动特性。' },
+    { id:101, type:'single', subject:'电机与电气控制',
+      stem:'三相异步电动机采用反接制动时，限制制动电流过大的常用措施是（ ）。',
+      options:['在定子回路中串入限流电阻','在转子回路中串入电容','把电源电压降到零','断开热继电器'], answer:[0],
+      explain:'反接制动时旋转磁场反向、转差率大于 1，定子电流可达额定电流的 10 倍左右，需在定子回路串限流电阻；转速接近零时还须由速度继电器及时切断电源，防止电动机反向启动。' },
+    { id:102, type:'single', subject:'电机与电气控制',
+      stem:'测量电动机绕组对地的绝缘电阻，应选用的仪表是（ ）。',
+      options:['兆欧表','万用表电阻挡','钳形电流表','接地电阻测试仪'], answer:[0],
+      explain:'兆欧表（摇表）自带高压电源，能测出绝缘电阻；测量前必须切断电源并充分放电，低压电动机冷态绝缘电阻一般不低于 0.5MΩ，低于该值应烘干处理后再用。' },
+    { id:103, type:'single', subject:'电机与电气控制',
+      stem:'Y-△ 降压启动电路中，时间继电器延时到达后完成的动作是（ ）。',
+      options:['断开星形接触器，接通三角形接触器','接通星形接触器，断开三角形接触器','断开主电源使电动机停转','短接热继电器的主触点'], answer:[0],
+      explain:'启动时星形接触器先吸合，电动机降压启动；延时到达后星形接触器断开、三角形接触器吸合，电动机转入全压正常运行，两接触器之间必须互锁。' },
+    { id:104, type:'single', subject:'电机与电气控制',
+      stem:'糖厂带式输送机运行中电动机过载保护频繁动作，最可能的原因是（ ）。',
+      options:['输送带堵料、托辊卡阻或物料过量，使负载增大','电源频率偏低','电动机极数选择不当','接触器线圈电压偏高'], answer:[0],
+      explain:'过载保护频繁动作说明负载长期偏大，应先清理堵料、检查托辊和皮带张紧情况；不得随意加大热继电器整定值来掩盖故障，否则会烧毁电动机。' },
+    { id:105, type:'multi', subject:'电机与电气控制',
+      stem:'关于 PLC 的梯形图，下列说法正确的有（ ）。',
+      options:['触点串联实现“与”逻辑，触点并联实现“或”逻辑','输出线圈所在支路串入自身常开触点，可实现自锁','按钮、行程开关等开关量信号接输入端，接触器线圈、指示灯接输出端','按钮和接触器线圈都应接在 PLC 的输入端子上'], answer:[0,1,2],
+      explain:'梯形图用串、并联触点实现与、或逻辑，用自身触点并联实现自锁；输入侧只接按钮、开关等信号，接触器线圈等负载必须接输出侧，选项「按钮和接触器线圈都应接在 PLC 的输入端子上」错。' },
+    { id:106, type:'multi', subject:'电机与电气控制',
+      stem:'关于电动机正反转控制中的互锁，下列说法正确的有（ ）。',
+      options:['接触器互锁是把两只接触器的常闭辅助触点分别串入对方线圈回路','按钮互锁能在按下反转按钮的瞬间先断开正转接触器线圈回路','双重互锁既操作方便，又能防止触点粘连造成的相间短路','设置互锁后就可以取消热继电器的过载保护'], answer:[0,1,2],
+      explain:'电气互锁靠常闭辅助触点相互封锁，按钮互锁靠复合按钮先断后合，两者合用即双重互锁；互锁只防止两只接触器同时吸合，不能代替过载保护，选项「设置互锁后就可以取消热继电器的过载保护」错。' },
+    { id:107, type:'judge', subject:'电机与电气控制',
+      stem:'行程开关（限位开关）把机械位移转换为电信号，既可用于限位保护，也可与接触器配合实现工作台的自动往返循环控制。（ ）',
+      options:['正确','错误'], answer:[0],
+      explain:'行程开关由机械挡块碰撞触头动作，其常闭触点串在控制回路中作限位保护，两只行程开关配合可自动换向，实现往返循环。' },
+    { id:108, type:'judge', subject:'电机与电气控制',
+      stem:'反接制动是切断三相交流电源后把定子绕组接入直流电源，利用转子惯性切割静止磁场产生制动转矩。（ ）',
+      options:['正确','错误'], answer:[1],
+      explain:'题干描述的是能耗制动；反接制动是改变定子电源相序使旋转磁场反向，转差率大于 1，制动转矩大但电流也大，定子回路需串限流电阻。' },
+
+    /* ---------- 追加 · 电子技术 12 ---------- */
+    { id:109, type:'single', subject:'电子技术',
+      stem:'单相桥式整流电路中，变压器二次电压有效值 U2 = 10V，每只二极管承受的最大反向电压约为（ ）。',
+      options:['14.1V','10V','9V','4.5V'], answer:[0],
+      explain:'桥式整流每只二极管承受的最大反向电压为 √2U2 = 1.414 × 10 ≈ 14.1V；单相半波整流才承受 2√2U2 ≈ 28.3V，两者不要混淆。' },
+    { id:110, type:'single', subject:'电子技术',
+      stem:'单相桥式整流电路采用电容滤波，变压器二次电压有效值 U2 = 25V，输出直流电压平均值约为（ ）。',
+      options:['30V','22.5V','11.3V','35.4V'], answer:[0],
+      explain:'接电容滤波后 Uo ≈ 1.2U2 = 1.2 × 25 = 30V，比不加滤波时的 0.9U2 = 22.5V 明显升高；该电压会随负载电流增大而下降。' },
+    { id:111, type:'single', subject:'电子技术',
+      stem:'稳压管稳压电路中，输入电压 Ui = 12V，稳压管稳定电压 Uz = 6V，负载电流 IL = 30mA，稳压管最小工作电流 Izmin = 10mA，则限流电阻 R 应取（ ）。',
+      options:['150Ω','200Ω','60Ω','400Ω'], answer:[0],
+      explain:'R = (Ui − Uz)/(IL + Izmin) = (12 − 6)/(0.03 + 0.01) = 6/0.04 = 150Ω。电阻过大稳压管电流不足、稳压失效，过小则可能烧坏稳压管。' },
+    { id:112, type:'single', subject:'电子技术',
+      stem:'某三极管基极电流 Ib = 40μA 时，集电极电流 Ic = 2mA，其电流放大系数 β 约为（ ）。',
+      options:['50','20','80','500'], answer:[0],
+      explain:'β = Ic/Ib = 2mA/40μA = 2000/40 = 50。β 是电流放大系数，不是电压放大倍数。' },
+    { id:113, type:'single', subject:'电子技术',
+      stem:'共集电极放大电路（射极跟随器）的主要特点是（ ）。',
+      options:['电压放大倍数略小于 1，输入电阻大、输出电阻小，输出与输入同相','电压放大倍数很大且输出与输入反相','电压放大倍数很大且输出与输入同相','输入电阻小、输出电阻大'], answer:[0],
+      explain:'共集电极电路从发射极输出，电压增益接近 1 而不失真地放大电流，输入电阻大、输出电阻小，常用于缓冲级和输出级。' },
+    { id:114, type:'single', subject:'电子技术',
+      stem:'反相比例运算电路中，R1 = 10kΩ，Rf = 100kΩ，其电压放大倍数约为（ ）。',
+      options:['−10','10','−0.1','−11'], answer:[0],
+      explain:'Auf = −Rf/R1 = −100/10 = −10，负号表示输出与输入反相；同相比例放大才不带负号。' },
+    { id:115, type:'single', subject:'电子技术',
+      stem:'单相可控整流电路中，晶闸管的触发角 α 增大时，输出直流电压平均值（ ）。',
+      options:['减小','增大','不变','先增大后减小'], answer:[0],
+      explain:'α 增大使晶闸管的导通角减小，输出平均值随之下降，如单相半控桥 Uo = 0.9U2(1 + cosα)/2，α = 0 时输出最大。' },
+    { id:116, type:'single', subject:'电子技术',
+      stem:'硅二极管正向导通时，其两端电压降约为（ ）。',
+      options:['0.7V','0.3V','0V','12V'], answer:[0],
+      explain:'硅管正向压降约 0.6~0.7V，锗管约 0.2~0.3V；分析电路时不能把导通的二极管当成理想导线（0V）。' },
+    { id:117, type:'multi', subject:'电子技术',
+      stem:'关于与非门，下列说法正确的有（ ）。',
+      options:['输入全为 1 时输出为 0，任一输入为 0 时输出为 1','逻辑表达式可写作 Y = ¬(A·B)','用与非门可以组成与门、或门、非门等基本逻辑门','与非门只能有一个输入端'], answer:[0,1,2],
+      explain:'与非门是先与后非，有 0 出 1、全 1 出 0，逻辑表达式为 Y = ¬(A·B)；它是万能门，可组成其他基本门，输入端允许两个以上，选项「与非门只能有一个输入端」错。' },
+    { id:118, type:'multi', subject:'电子技术',
+      stem:'关于集成运算放大器，下列说法正确的有（ ）。',
+      options:['理想运放的开环电压放大倍数趋于无穷大','理想运放的输入电阻趋于无穷大、输出电阻趋于零','运放作电压比较器时通常工作在开环或正反馈状态，输出只有高、低两种电平','运放作比较器时必须引入深度负反馈'], answer:[0,1,2],
+      explain:'理想运放的开环增益和输入电阻为无穷大、输出电阻为零；比较器工作在开环或正反馈状态，输出为高、低两态，不能加深度负反馈，选项「运放作比较器时必须引入深度负反馈」错。' },
+    { id:119, type:'judge', subject:'电子技术',
+      stem:'三极管饱和时集电结处于正偏，UCE 约为 0.3V，此时再增大基极电流，集电极电流基本不再增大。（ ）',
+      options:['正确','错误'], answer:[0],
+      explain:'饱和区两结都正偏，UCE 只有 0.1~0.3V，集电极电流受外电路限制不再随 Ib 增大，这正是三极管作开关导通时的状态。' },
+    { id:120, type:'judge', subject:'电子技术',
+      stem:'三极管的 β 值越大越好，因此放大电路应尽量选用 β 很大的管子。（ ）',
+      options:['正确','错误'], answer:[1],
+      explain:'β 过大会使静态工作点不稳定、温度漂移大，容易进入饱和区，放大电路一般选 β 在 40~100 的管子并靠负反馈稳定工作。' },
+
+    /* ---------- 追加 · 电气安全 12 ---------- */
+    { id:121, type:'single', subject:'电气安全',
+      stem:'在 10kV 带电设备附近工作，工作人员与带电体之间的安全距离不得小于（ ）。',
+      options:['0.7m','0.35m','1.0m','1.5m'], answer:[0],
+      explain:'按《电力安全工作规程》，10kV 设备不停电时的安全距离为 0.7m；1.0m 对应 35kV，1.5m 对应 110kV，电压等级不同数值不能混用。' },
+    { id:122, type:'single', subject:'电气安全',
+      stem:'高压导线断落在地后，人员从落地点附近撤离的正确方法是（ ）。',
+      options:['单足跳跃或双足并拢小步跳离','大步快速跑离','双脚分开缓慢走离','原地不动等待救援'], answer:[0],
+      explain:'导线落地后附近地面存在电位差，两脚分开就会承受跨步电压，步距越大电压越高；应单足跳或双脚并拢小步撤离到室外 8m 以外，进入该范围还须穿绝缘靴。' },
+    { id:123, type:'single', subject:'电气安全',
+      stem:'“禁止合闸，有人工作”标示牌应悬挂在（ ）。',
+      options:['一经合闸即可送电到工作地点的断路器、隔离开关操作把手上','工作地点四周的临时围栏上','带电设备的外壳上','配电室门口的墙面上'], answer:[0],
+      explain:'该标示牌用于防止误合闸送电，必须挂在可能向检修设备送电的开关操作把手上；“止步，高压危险”才用于遮栏和带电设备附近。' },
+    { id:124, type:'single', subject:'电气安全',
+      stem:'低压配电系统中，保护零线（PE 线）重复接地电阻一般不应大于（ ）。',
+      options:['4Ω','10Ω','30Ω','100Ω'], answer:[1],
+      explain:'PE 线重复接地的电阻一般要求不大于 10Ω；而保护接地（总接地）一般不大于 4Ω，两个数值不要混淆。' },
+    { id:125, type:'single', subject:'电气安全',
+      stem:'“GB/T 13869”是我国现行《（ ）》标准的编号。',
+      options:['用电安全导则','施工现场临时用电安全技术规范','建筑物防雷设计规范','低压配电设计规范'], answer:[0],
+      explain:'GB/T 13869 即《用电安全导则》，GB/T 表示推荐性国家标准；施工现场临时用电的行业标准是 JGJ 46，两者不要混淆。' },
+    { id:126, type:'single', subject:'电气安全',
+      stem:'人体同时接触两根相线所形成的两相触电，加在人体上的电压是（ ）。',
+      options:['线电压 380V','相电压 220V','安全电压 36V','零电压'], answer:[0],
+      explain:'两相触电时人体承受线电压 380V，电流路径经过心脏，是最危险的触电方式；单相触电承受的才是相电压 220V。' },
+    { id:127, type:'single', subject:'电气安全',
+      stem:'使用验电器验电前，必须先（ ）。',
+      options:['在确知有电的设备上检验验电器是否良好','用手触摸设备确认是否带电','先装设接地线再验电','直接在被检修设备上验电'], answer:[0],
+      explain:'验电器可能损坏或电池不足，不先在有电设备上确证良好，就可能把带电误判为停电；验电应在装设接地线之前进行，并戴绝缘手套、有人监护。' },
+    { id:128, type:'single', subject:'电气安全',
+      stem:'对触电者实施成人心肺复苏时，胸外按压与人工呼吸的次数之比为（ ）。',
+      options:['15:2','5:1','30:2','10:1'], answer:[2],
+      explain:'现行成人心肺复苏采用 30 次胸外按压配合 2 次人工呼吸，按压频率 100~120 次/分，每 5 个循环约 2 分钟评估一次。' },
+    { id:129, type:'multi', subject:'电气安全',
+      stem:'关于绝缘工器具，下列说法正确的有（ ）。',
+      options:['绝缘手套、绝缘靴、验电器等属于绝缘工器具','必须定期进行预防性试验，合格后方可使用','使用前应检查外观有无破损、裂纹和受潮','绝缘手套可以代替接地线使用'], answer:[0,1,2],
+      explain:'绝缘工器具靠绝缘隔离保障人身安全，须定期做预防性（耐压）试验并检查外观；接地线用于把检修设备接地以泄放电荷，与绝缘手套用途完全不同，选项「绝缘手套可以代替接地线使用」错。' },
+    { id:130, type:'multi', subject:'电气安全',
+      stem:'按 JGJ 46《施工现场临时用电安全技术规范》，下列说法正确的有（ ）。',
+      options:['采用 TN-S 接零保护系统','实行三级配电、二级漏电保护','每台用电设备实行一机一闸一漏一箱','同一个开关箱可同时直接控制两台用电设备'], answer:[0,1,2],
+      explain:'施工现场临时用电必须采用 TN-S 系统，做到三级配电两级保护、一机一闸一漏一箱；一个开关箱只能控制一台用电设备，选项「同一个开关箱可同时直接控制两台用电设备」错。' },
+    { id:131, type:'judge', subject:'电气安全',
+      stem:'装设漏电保护器后，用电设备的保护接地或保护接零就可以取消。（ ）',
+      options:['正确','错误'], answer:[1],
+      explain:'漏电保护器只是附加保护，末级直接接触防护一般取额定动作电流 30mA、动作时间不大于 0.1s；它不能代替保护接地（接零），两者必须同时具备。' },
+    { id:132, type:'judge', subject:'电气安全',
+      stem:'工频电流通过人体达到 50mA 时就可能引起心室颤动危及生命，因此 50mA 常被视为致命电流。（ ）',
+      options:['正确','错误'], answer:[0],
+      explain:'人体电流效应中摆脱电流约 10~16mA，50mA 以上短时间即可导致心室颤动，故一般把 50mA 作为致命电流界限，漏电保护取 30mA 正是留出安全裕度。' },
+
+    /* ---------- 追加 · 集团背景与企业文化 12 ---------- */
+    { id:133, type:'single', subject:'集团背景与企业文化',
+      stem:'广西国控的资产总额近（ ）。',
+      options:['3651 亿元','110 亿元','36 亿元','2.8 亿元'], answer:[0],
+      explain:'集团资产总额近 3651 亿元；110 亿元是注册资本且已实缴，两个数字最容易混淆。' },
+    { id:134, type:'single', subject:'集团背景与企业文化',
+      stem:'广西国控的主体信用评级为（ ）。',
+      options:['AA 级','A 级','AAA 级','BBB 级'], answer:[2],
+      explain:'集团主体信用评级为 AAA 级，是国内最高信用等级，反映其资产质量与偿债能力。' },
+    { id:135, type:'single', subject:'集团背景与企业文化',
+      stem:'广西国控现有二级企业 36 户，在职职工约（ ）万人。',
+      options:['2.8','1.2','5.6','8.6'], answer:[0],
+      explain:'集团现有 1 所职业本科院校（广西职业技术大学）、36 户二级企业、在职职工 2.8 万人。' },
+    { id:136, type:'single', subject:'集团背景与企业文化',
+      stem:'广西国控总部位于（ ）。',
+      options:['南宁市青秀区枫林路 18 号','南宁市江南区星光大道 1 号','南宁市良庆区五象大道 8 号','桂林市七星区七星路 1 号'], answer:[0],
+      explain:'总部地址为南宁市青秀区枫林路 18 号，邮编 530025；其余地址均为干扰项。' },
+    { id:137, type:'single', subject:'集团背景与企业文化',
+      stem:'广西国控的发展逻辑是（ ）。',
+      options:['以现代农业产业为根基、资本运营为重点、资产盘活为驱动','以资本运营为根基、产业引领为重点、资产盘活为驱动','以资产盘活为根基、现代农业产业为重点、资本运作为驱动','以食品加工为根基、资本运营为重点、科技创新为驱动'], answer:[0],
+      explain:'官方表述为“以现代农业产业为根基、资本运营为重点、资产盘活为驱动”，三层定位的顺序不能颠倒。' },
+    { id:138, type:'single', subject:'集团背景与企业文化',
+      stem:'广西国控所属的职业本科院校是（ ）。',
+      options:['广西职业技术大学','广西农业职业技术大学','广西城市职业大学','广西科技职业学院'], answer:[0],
+      explain:'集团拥有 1 所职业本科院校——广西职业技术大学，其余名称为干扰项。' },
+    { id:139, type:'single', subject:'集团背景与企业文化',
+      stem:'下列属于广西国控文化活动品牌的是（ ）。',
+      options:['“幸福国控 你我同行”系列活动','“国控先锋”表彰活动','“国控讲堂”系列讲座','“国控文化节”'], answer:[0],
+      explain:'集团文化活动品牌为“幸福国控 你我同行”系列活动、“国控杯”广西县超和“山歌词王”线上挑战赛，其余名称为干扰项。' },
+    { id:140, type:'single', subject:'集团背景与企业文化',
+      stem:'广西国控 LOGO 的主色调是（ ）。',
+      options:['中国红与金色','蓝色与银色','绿色与白色','黑色与金色'], answer:[0],
+      explain:'LOGO 取“国”字与印章造型，主色为中国红与金色；蓝色、绿色等均与官方释义不符。' },
+    { id:141, type:'multi', subject:'集团背景与企业文化',
+      stem:'广西国控 LOGO 的官方释义包括（ ）。',
+      options:['取“国”字与印章造型','天圆地方、田为基、民为本','三个红色色块如同三面红旗','以“桂”字变形作为唯一造型'], answer:[0,1,2],
+      explain:'LOGO 官方释义含取“国”字与印章造型、天圆地方、田为基民为本、四角开放、三个红色色块如同三面红旗、三生万物以及资源—资产—资本三资循环；并非以“桂”字变形，选项「以“桂”字变形作为唯一造型」错。' },
+    { id:142, type:'multi', subject:'集团背景与企业文化',
+      stem:'广西国控的两大目标是（ ）。',
+      options:['全国一流资本运营标杆','全国一流食品产业集团','全国一流食品加工基地','世界一流农业企业'], answer:[0,1],
+      explain:'两大目标为“全国一流资本运营标杆”和“全国一流食品产业集团”；食品加工基地、世界一流农业企业均非官方表述。' },
+    { id:143, type:'judge', subject:'集团背景与企业文化',
+      stem:'广西国控吉祥物“国小宝”在 2026 年 1 月推出了单曲《Yo 国小宝》。（ ）',
+      options:['正确','错误'], answer:[0],
+      explain:'国小宝于 2026 年 1 月 28 日正式发布，次日即 1 月 29 日推出单曲《Yo 国小宝》，官方人设为“元气代言人、职场暖团子”。' },
+    { id:144, type:'judge', subject:'集团背景与企业文化',
+      stem:'广西国控是自治区直属的国有控股混合所有制企业。（ ）',
+      options:['正确','错误'], answer:[1],
+      explain:'集团性质为自治区直属国有独资企业，不是国有控股的混合所有制企业。' },
+
+    /* ---------- 追加 · E_batch2 · 电工基础 10 ---------- */
+    { id:145, type:'single', subject:'电工基础', stem:'电感 L = 0.1H 接在 50Hz 工频电源上，其感抗约为（ ）。', options:['31.4Ω','15.7Ω','3.14Ω','62.8Ω'], answer:[0], explain:'感抗 XL = 2πfL = 2 × 3.14 × 50 × 0.1 = 31.4Ω。感抗与频率成正比，频率越高感抗越大。' },
+    { id:146, type:'single', subject:'电工基础', stem:'电容 C = 100μF 接在 50Hz 电源上，其容抗约为（ ）。', options:['31.8Ω','15.9Ω','63.7Ω','3.18Ω'], answer:[0], explain:'容抗 XC = 1/(2πfC) = 1/(2 × 3.14 × 50 × 100 × 10⁻⁶) ≈ 31.8Ω。容抗与频率成反比，频率升高容抗减小。' },
+    { id:147, type:'single', subject:'电工基础', stem:'R = 10kΩ 与 C = 100μF 串联，其充电时间常数约为（ ）。', options:['1s','0.1s','10s','0.001s'], answer:[0], explain:'时间常数 τ = RC = 10 × 10³ × 100 × 10⁻⁶ = 1s。工程上经过 3τ~5τ 认为充电基本结束，τ 越大充电越慢。' },
+    { id:148, type:'single', subject:'电工基础', stem:'某负载的有功功率为 6kW、无功功率为 8kvar，其功率因数为（ ）。', options:['0.6','0.8','0.75','1.0'], answer:[0], explain:'视在功率 S = √(P² + Q²) = √(6² + 8²) = 10kVA，功率因数 cosφ = P/S = 6/10 = 0.6。把有功与无功直接相除得到 0.75，是概念错误。' },
+    { id:149, type:'single', subject:'电工基础', stem:'一台变压器额定容量 100kVA，铁损 1kW，额定负载时铜损 2kW，负载功率因数 0.8，其额定负载下的效率约为（ ）。', options:['96.4%','97.6%','95.2%','98.5%'], answer:[0], explain:'额定输出有功 P2 = 100 × 0.8 = 80kW，η = P2/(P2 + PFe + PCu) = 80/(80 + 1 + 2) ≈ 96.4%。铁损由空载试验测定，铜损由短路试验测定。' },
+    { id:150, type:'single', subject:'电工基础', stem:'RLC 串联电路中，电阻上电压为 30V、电感上电压为 40V、电容上电压为 0，则总电压为（ ）。', options:['50V','70V','10V','35V'], answer:[0], explain:'串联总电压 U = √(UR² + (UL − UC)²) = √(30² + 40²) = 50V。各元件电压存在相位差，不能直接相加，70V 就是直接相加的错误结果。' },
+    { id:151, type:'multi', subject:'电工基础', stem:'关于感抗和容抗，下列说法正确的有（ ）。', options:['感抗 XL = 2πfL，与频率成正比','容抗 XC = 1/(2πfC)，与频率成反比','直流稳态下电感相当于短路，电容相当于开路','电容的容抗随频率升高而增大'], answer:[0,1,2], explain:'感抗随频率升高而增大，容抗随频率升高而减小；直流稳态时电感感抗为零相当于短路，电容容抗无穷大相当于开路。选项「电容的容抗随频率升高而增大」把容抗与感抗的规律弄反了。' },
+    { id:152, type:'multi', subject:'电工基础', stem:'关于电容的充电过程，下列说法正确的有（ ）。', options:['电容两端电压不能突变，只能按指数规律逐渐上升','刚接通电源瞬间充电电流最大，随后逐渐减小','充电达到稳态后电容相当于开路，电流为零','电容充电时电压随时间按直线规律上升'], answer:[0,1,2], explain:'电容电压按指数规律变化、不能突变；初始瞬间电压为零、电流最大，稳态后电压等于电源电压、电流为零。选项「电容充电时电压随时间按直线规律上升」错。' },
+    { id:153, type:'judge', subject:'电工基础', stem:'变压器可以同时改变交流电压、电流和频率。（ ）', options:['正确','错误'], answer:[1], explain:'变压器只能按变比改变电压和电流，频率由电源决定，变压器不能改变频率，所以题述错误。' },
+    { id:154, type:'single', subject:'电工基础', stem:'变压器空载时，一次侧电流主要用于（ ）。', options:['建立主磁通（励磁）','全部转化为铜损','输出给二次侧负载','提高功率因数'], answer:[0], explain:'空载时二次侧开路，一次侧电流主要用来建立主磁通，其损耗近似为铁损；铜损只有带负载时才明显。' },
+    /* ---------- 追加 · E_batch2 · 工厂供配电 10 ---------- */
+    { id:155, type:'single', subject:'工厂供配电', stem:'某车间有功计算负荷为 120kW，功率因数 0.8，其无功计算负荷约为（ ）。', options:['90kvar','96kvar','75kvar','150kvar'], answer:[0], explain:'cosφ = 0.8 时 tanφ = 0.75，无功计算负荷 Q = P·tanφ = 120 × 0.75 = 90kvar。视在功率 S = P/cosφ = 150kVA，不要与无功功率混淆。' },
+    { id:156, type:'single', subject:'工厂供配电', stem:'某 10kV 母线发生三相短路，短路回路每相总阻抗为 2Ω，三相短路电流周期分量有效值约为（ ）。', options:['2.9kA','5.0kA','1.7kA','0.29kA'], answer:[0], explain:'三相短路电流 I = U线/(√3·Z) = 10000/(1.732 × 2) ≈ 2887A ≈ 2.9kA。若漏掉 √3 会得到 5.0kA，是常见错误。' },
+    { id:157, type:'single', subject:'工厂供配电', stem:'电流互感器变比为 100/5，一次侧实际电流为 80A，二次侧电流表读数约为（ ）。', options:['4A','5A','1.6A','0.8A'], answer:[0], explain:'变比 100/5 = 20，二次电流 I2 = I1/20 = 80/20 = 4A。二次侧额定电流一般为 5A 或 1A。' },
+    { id:158, type:'single', subject:'工厂供配电', stem:'零序电流保护主要用来反映（ ）。', options:['单相接地故障','三相对称短路','两相相间短路','电动机过负荷'], answer:[0], explain:'中性点直接接地系统发生单相接地时，故障电流经大地返回中性点，三相电流之和不为零，出现零序电流，零序保护据此动作；三相对称短路没有零序分量。' },
+    { id:159, type:'single', subject:'工厂供配电', stem:'变电所采用单母线分段接线，其主要优点是（ ）。', options:['一段母线故障或检修时，另一段母线可继续供电，提高供电可靠性','可以取消所有断路器','使短路电流增大','不需要设置继电保护'], answer:[0], explain:'单母线分段用分段断路器或隔离开关把母线分成两段，重要负荷可从两段分别取得电源，一段检修或故障时另一段仍能运行；它不能取消断路器，也不能省去继电保护。' },
+    { id:160, type:'single', subject:'工厂供配电', stem:'按电能质量要求，10kV 三相供电电压的允许偏差一般为额定电压的（ ）。', options:['±7%','±5%','±10%','±2%'], answer:[0], explain:'GB/T 12325 规定：35kV 及以上供电电压正、负偏差绝对值之和不超过 10%，10kV 及以下三相供电电压偏差为 ±7%，220V 单相为 +7%、−10%。' },
+    { id:161, type:'multi', subject:'工厂供配电', stem:'关于工厂防雷，下列说法正确的有（ ）。', options:['避雷针用于保护露天配电装置和建筑物，使其免遭直击雷','避雷器与被保护设备并联，过电压时导通泄流','防雷接地是防雷装置的重要组成部分','装设避雷针后，被保护设备就不需要再装避雷器'], answer:[0,1,2], explain:'避雷针防直击雷，避雷器防雷电侵入波，两者作用不同，不能互相代替；防雷装置必须可靠接地才能泄放雷电流。选项「装设避雷针后，被保护设备就不需要再装避雷器」错。' },
+    { id:162, type:'multi', subject:'工厂供配电', stem:'改善工厂供电电压质量的措施包括（ ）。', options:['合理增大导线截面，减小线路电压损失','合理配置无功补偿，减少无功电流引起的电压降','采用变压器分接头或有载调压调整电压','提高电网频率来升高电压'], answer:[0,1,2], explain:'电压偏差主要与线路电压损失、无功潮流和变压器分接头有关，合理增大导线截面、合理配置无功补偿、采用变压器分接头或有载调压都是常用措施；频率由电网统一决定，不能靠提高频率调压。选项「提高电网频率来升高电压」错。' },
+    { id:163, type:'single', subject:'工厂供配电', stem:'TN-C 系统中 PEN 线一旦断线，三相不对称负载的中性点会（ ）。', options:['发生位移，负载中性点对地出现电压，设备外壳可能带电','保持零电位，不影响设备','使三相电压更对称','自动被断路器切除'], answer:[0], explain:'PEN 线兼作保护线，断线后中性点位移，各相电压严重不对称，外壳通过 PEN 线带上危险电压；因此 PEN 线上严禁装设开关和熔断器，并应做重复接地。' },
+    { id:164, type:'judge', subject:'工厂供配电', stem:'独立避雷针的接地装置宜与被保护设备的接地装置分开敷设，以防雷击时发生反击。（ ）', options:['正确','错误'], answer:[0], explain:'雷击时独立避雷针接地装置电位很高，若与被保护设备接地装置相连或距离过近，可能向设备放电造成反击，因此两者应分开敷设并保持足够距离。' },
+    /* ---------- 追加 · E_batch2 · 电机与电气控制 10 ---------- */
+    { id:165, type:'single', subject:'电机与电气控制', stem:'三相异步电动机在稳定运行区内，负载转矩增大时，电动机的转速将（ ）。', options:['下降，定子电流增大','上升，定子电流减小','保持不变，电流也不变','先上升后下降'], answer:[0], explain:'稳定区内负载增大使转子减速、转差率增大，转子电流和定子电流随之增大，电磁转矩增大到与负载平衡；转速下降是电动机自动适应负载的表现。' },
+    { id:166, type:'single', subject:'电机与电气控制', stem:'变频调速的实质是（ ）。', options:['改变定子供电频率，从而改变同步转速，实现无级调速','改变定子绕组极对数','在转子回路串入电阻','改变电源相序'], answer:[0], explain:'由 n1 = 60f/p 可知，改变频率即可连续改变同步转速，调速范围宽、效率高；变极调速是有级调速，转子串电阻主要用于绕线式电动机。' },
+    { id:167, type:'single', subject:'电机与电气控制', stem:'能耗制动过程中，制动转矩随转速下降而（ ）。', options:['逐渐减小，转速降到零时制动转矩也为零','逐渐增大','保持不变','先减小后增大'], answer:[0], explain:'能耗制动把定子绕组接入直流电源，转子切割静止磁场产生制动转矩，转速越低制动转矩越小，停转后自动消失；它比反接制动平稳，但需要直流电源。' },
+    { id:168, type:'single', subject:'电机与电气控制', stem:'交流接触器线圈通电后不吸合，最先应检查（ ）。', options:['线圈是否断路、控制回路是否接通以及线圈电压是否过低','主触点是否烧毛','灭弧罩是否装好','电动机是否过载'], answer:[0], explain:'线圈不吸合说明控制回路或线圈本身有问题，应先测线圈电阻、查控制回路熔断器和按钮触点、核对线圈电压；主触点、灭弧罩和电动机过载都不会导致线圈不吸合。' },
+    { id:169, type:'single', subject:'电机与电气控制', stem:'电动机运行中轴承温度过高，下列原因中最不可能的是（ ）。', options:['电源频率偏低','润滑脂不足或变质','轴承磨损、间隙过大','轴承装配过紧或联轴器对中不良'], answer:[0], explain:'轴承过热主要来自润滑、轴承本身和装配对中问题；电源频率偏低影响的是转速和磁通，不会直接造成轴承温度升高。' },
+    { id:170, type:'single', subject:'电机与电气控制', stem:'某 PLC 定时器的时基为 100ms，设定值为 50，其延时时间为（ ）。', options:['5s','0.5s','50s','0.05s'], answer:[0], explain:'延时时间 = 时基 × 设定值 = 100ms × 50 = 5000ms = 5s。时基为 10ms 时，同样的设定值才是 0.5s。' },
+    { id:171, type:'single', subject:'电机与电气控制', stem:'变频器在基频以上继续升高频率时，输出电压保持额定值不变，电动机进入（ ）。', options:['恒功率调速区（弱磁调速）','恒转矩调速区','恒磁通调速区','恒转差率调速区'], answer:[0], explain:'基频以下保持 U/f 恒定，磁通基本不变，属恒转矩调速；基频以上电压不能超过额定值，磁通随频率升高而减弱，输出功率基本不变，属恒功率（弱磁）调速。' },
+    { id:172, type:'multi', subject:'电机与电气控制', stem:'三相异步电动机常用的调速方法有（ ）。', options:['改变定子绕组极对数','改变定子供电频率','绕线式电动机转子回路串电阻','改变电源相序'], answer:[0,1,2], explain:'变极、变频和转子串电阻都能改变电动机的稳定转速；改变电源相序只能使电动机反转，不能调节转速。选项「改变电源相序」错。' },
+    { id:173, type:'judge', subject:'电机与电气控制', stem:'三相异步电动机的电气制动方法包括能耗制动、反接制动和回馈制动。（ ）', options:['正确','错误'], answer:[0], explain:'能耗制动接通直流电源，反接制动改变相序，回馈制动使电动机转速高于同步转速、向电网回馈电能，三者都是常用的电气制动方式。' },
+    { id:174, type:'judge', subject:'电机与电气控制', stem:'接触器具有失压保护作用，电源电压消失后其主触点自动断开，恢复供电时电动机不会自行启动。（ ）', options:['正确','错误'], answer:[0], explain:'接触器线圈失电后衔铁在弹簧作用下释放，主触点断开；只要不重新按下启动按钮，电动机不会自行启动，这就是失压（零压）保护。' },
+    /* ---------- 追加 · E_batch2 · 电子技术 8 ---------- */
+    { id:175, type:'single', subject:'电子技术', stem:'二极管钳位电路的主要作用是（ ）。', options:['把信号的顶部或底部钳制在某一固定直流电平上，基本不改变波形形状','把正弦波变成方波','把交流电变成直流电','把直流电变成交流电'], answer:[0], explain:'钳位电路利用二极管和电容把整个波形上下平移，使顶部或底部固定在指定电平，波形形状不变；整流才是把交流变成直流。' },
+    { id:176, type:'single', subject:'电子技术', stem:'分压式偏置共射放大电路中，发射极电阻 Re 的主要作用是（ ）。', options:['引入直流负反馈，稳定静态工作点','提高电源电压','增大集电极电阻','使三极管工作在饱和区'], answer:[0], explain:'Re 上的直流压降随集电极电流增大而增大，反过来使 UBE 减小，从而稳定静态工作点、减小温度漂移；它不改变电源电压，也不应让管子进入饱和区。' },
+    { id:177, type:'single', subject:'电子技术', stem:'共射放大电路 VCC = 12V，集电极电阻 RC = 3kΩ，集电极电流 IC = 2mA，忽略发射极电阻压降，则 UCE 约为（ ）。', options:['6V','12V','4V','2V'], answer:[0], explain:'UCE = VCC − IC·RC = 12 − 2 × 3 = 6V。若忽略 RC 上的压降会误得 12V，把 IC·RC 误算成 8V 则误得 4V。' },
+    { id:178, type:'single', subject:'电子技术', stem:'某同相比例运算电路要求电压放大倍数为 10，已知反馈电阻 Rf = 90kΩ，则电阻 R1 应取（ ）。', options:['10kΩ','9kΩ','90kΩ','100kΩ'], answer:[0], explain:'同相比例放大 Auf = 1 + Rf/R1，即 10 = 1 + 90/R1，解得 R1 = 10kΩ；若漏掉同相放大的“1”、按 Rf/R1 = 10 计算，会误得 9kΩ。' },
+    { id:179, type:'single', subject:'电子技术', stem:'晶闸管由导通转为关断的条件是（ ）。', options:['阳极电流减小到维持电流以下，或阳极与阴极之间加反向电压','门极电流增大到一定值','门极加反向电压','阳极电压升高'], answer:[0], explain:'晶闸管导通后门极失去控制作用，只能靠主电路电流降到维持电流以下或承受反压关断；门极信号只负责触发导通。' },
+    { id:180, type:'single', subject:'电子技术', stem:'逻辑表达式 A + AB 化简后的结果是（ ）。', options:['A','A + B','B','AB'], answer:[0], explain:'A + AB = A(1 + B) = A，因为 1 + B = 1。这是逻辑代数中的吸收律，化简结果与 B 的取值无关。' },
+    { id:181, type:'multi', subject:'电子技术', stem:'关于运放线性应用中的虚短、虚地与放大倍数，下列说法正确的有（ ）。', options:['深度负反馈下两输入端电位近似相等，即虚短','反相比例电路中反相输入端近似为虚地','同相比例放大的电压倍数为 1 + Rf/R1','运放的输出电压可以超过其电源电压'], answer:[0,1,2], explain:'线性应用靠深度负反馈建立虚短、虚断，反相端电位近似为零称为虚地；输出电压受电源电压限制，不可能超过电源电压。选项「运放的输出电压可以超过其电源电压」错。' },
+    { id:182, type:'judge', subject:'电子技术', stem:'分压式偏置电路中，发射极旁路电容 Ce 对交流相当于短路，可提高交流电压放大倍数。（ ）', options:['正确','错误'], answer:[0], explain:'Ce 对交流容抗很小，把 Re 交流旁路，使交流负反馈减小，电压放大倍数提高；但它不影响直流偏置，静态工作点仍由 Re 稳定。' },
+    /* ---------- 追加 · E_batch2 · 电气安全 10 ---------- */
+    { id:183, type:'single', subject:'电气安全', stem:'我国安全电压的额定值系列不包括（ ）。', options:['18V','42V','24V','6V'], answer:[0], explain:'我国安全电压额定值系列为 42、36、24、12、6V，18V 不在系列内；选用时应根据场所潮湿程度和触电危险性确定。' },
+    { id:184, type:'single', subject:'电气安全', stem:'保护接零与保护接地的主要区别是（ ）。', options:['保护接零把设备外壳接到 PE 线或 PEN 线，保护接地把外壳接到独立的接地装置','两者完全一样','保护接零把外壳接到相线','保护接地把外壳接到中性线'], answer:[0], explain:'保护接零用于 TN 系统，外壳接 PE 或 PEN 线，依靠单相短路使保护电器迅速动作；保护接地用于 TT 或 IT 系统，外壳接独立接地体，靠降低外壳对地电压来减轻触电危险。' },
+    { id:185, type:'single', subject:'电气安全', stem:'低压线路和设备的绝缘电阻一般不应低于（ ）。', options:['0.5MΩ','0.05MΩ','5MΩ','50MΩ'], answer:[0], explain:'低压线路和设备冷态绝缘电阻一般要求不低于 0.5MΩ，测量时使用兆欧表并先切断电源、充分放电；低于该值应查明原因并干燥处理。' },
+    { id:186, type:'single', subject:'电气安全', stem:'二氧化碳灭火器最适用于扑救（ ）。', options:['带电设备、精密仪器和电子设备的火灾','金属钠、钾等活泼金属火灾','大面积油类流淌火灾','人体衣物着火'], answer:[0], explain:'二氧化碳不导电、灭火后不留痕迹，适合带电设备和精密仪器；活泼金属火灾需用专用干粉，二氧化碳对其无效，人体着火更不能直接喷射。' },
+    { id:187, type:'single', subject:'电气安全', stem:'安全色中，红色表示（ ）。', options:['禁止、停止','指令、必须遵守','警告、注意','安全、通行'], answer:[0], explain:'安全色规定：红色表示禁止、停止，蓝色表示指令、必须遵守，黄色表示警告、注意，绿色表示安全、通行。' },
+    { id:188, type:'single', subject:'电气安全', stem:'静电的主要危害是（ ）。', options:['可能引发火灾爆炸、造成电击和妨碍生产','提高设备绝缘水平','降低线路损耗','对人和设备都没有危害'], answer:[0], explain:'静电电压可达数千伏，放电火花可能点燃可燃气体或粉尘，也会给人电击感并干扰电子设备；因此易燃场所要做好接地、增湿和防静电措施。' },
+    { id:189, type:'single', subject:'电气安全', stem:'对无呼吸、无心跳的触电者进行心肺复苏前，应首先（ ）。', options:['将其仰卧在坚固平面上，头后仰、清除口鼻异物，保持气道通畅','让其坐起并喂水','立即注射药物','先做人工呼吸 10 分钟再按压'], answer:[0], explain:'心肺复苏的第一步是开放气道：仰卧在硬平面上、头后仰、清除口鼻异物，然后按 30:2 进行胸外按压和人工呼吸；喂水或先注射药物都会耽误抢救。' },
+    { id:190, type:'multi', subject:'电气安全', stem:'预防电气火灾的措施包括（ ）。', options:['合理选择导线截面和保护电器，避免线路长期过载','保持设备通风散热，防止绝缘受潮老化','定期检查接头、触点和绝缘状况','用铜丝代替熔丝以增大载流能力'], answer:[0,1,2], explain:'电气火灾多由过载、接触不良、绝缘老化和散热不良引起，合理选择导线截面和保护电器、保持设备通风散热、定期检查接头触点和绝缘状况都是有效措施；用铜丝代替熔丝会失去过流保护，是严重违章。选项「用铜丝代替熔丝以增大载流能力」错。' },
+    { id:191, type:'multi', subject:'电气安全', stem:'防止静电危害的常用措施有（ ）。', options:['设备、管道可靠接地以泄放静电','增加环境湿度，减少静电积聚','在易燃场所使用防静电材料和防静电工作服','穿化纤衣物并快速摩擦以中和静电'], answer:[0,1,2], explain:'接地、增湿和使用防静电材料是防静电的基本措施；化纤衣物容易产生并积聚静电，摩擦只会加剧。选项「穿化纤衣物并快速摩擦以中和静电」错。' },
+    { id:192, type:'judge', subject:'电气安全', stem:'安全电压是绝对安全的，人体接触安全电压范围内的带电体不会发生任何危险。（ ）', options:['正确','错误'], answer:[1], explain:'安全电压只是相对降低了触电危险，潮湿、长时间接触或人体电阻很低时仍可能造成伤害，仍需绝缘、屏护等防护措施，所以题述“绝对安全”错误。' },
+
+    /* ---------- 追加 · 集团背景与企业文化 3 ---------- */
+    { id:193, type:'single', subject:'集团背景与企业文化', stem:'广西国控的品牌推广语是（ ）。', options:['聚资强国 创利惠民','战略保障、资本运作、产业引领','全国一流资本运营标杆','全国一流食品产业集团'], answer:[0], explain:'品牌推广语为“聚资强国 创利惠民”，与战略使命的表述同口径；“战略保障、资本运作、产业引领”是三大核心功能，“全国一流资本运营标杆”“全国一流食品产业集团”是两大目标。' },
+    { id:194, type:'judge', subject:'集团背景与企业文化', stem:'广西国控吉祥物“国小宝”的形象为红色方块（印章形）脑袋，穿白衬衫、打领带，官方人设是“元气代言人、职场暖团子”。（ ）', options:['正确','错误'], answer:[0], explain:'国小宝的形象为红色方块（印章形）脑袋、白衬衫打领带，官方人设是“元气代言人、职场暖团子”；题干表述与官方公开口径一致。' },
+    { id:195, type:'multi', subject:'集团背景与企业文化', stem:'近年来集团开展了多项职工文化活动。下列名称中，属于集团官方文化活动品牌的有（ ）。', options:['“幸福国控 你我同行”系列活动','“国控杯”广西县超','“山歌词王”线上挑战赛','“国控先锋”表彰活动'], answer:[0,1,2], explain:'集团文化活动品牌为“幸福国控 你我同行”系列活动、“国控杯”广西县超和“山歌词王”线上挑战赛；“国控先锋”表彰活动不属于集团官方公布的文化活动品牌。' }
+  ];
+
+  /* ===================== 考前资料：简答题 15 道 ===================== */
+  const SHORT_QA = [
+    { id:1, subject:'电工基础', title:'功率因数补偿的计算与投切',
+      stem:'昌菱制糖动力车间一条 380V 配电线路的有功计算负荷为 200kW，补偿前 cosφ₁=0.8（tanφ₁=0.75），要求补偿到 cosφ₂=0.95（tanφ₂≈0.33）。请说明补偿原理，并计算所需并联电容器的容量。',
+      points:[
+        '原理：感性负载建立磁场需要无功功率，并联电容器就地发出容性无功，抵消负载所需的无功，使线路输送的无功减少、功率因数提高；有功负荷本身不变。',
+        '计算：Qc = P(tanφ₁ − tanφ₂) = 200 × (0.75 − 0.33) = 84 kvar。',
+        '配置：按 84 kvar 选择电容器组，可分相、分组投切；电容器额定电压应与系统电压匹配，谐波较大时串联电抗器。',
+        '效果：cosφ 提高后线路电流减小，线路损耗和电压损失下降，变压器等设备的容量得到释放。',
+        '注意：不得过补偿造成无功倒送；投切装置应有放电回路和联锁，停电后充分放电再检修。'
+      ],
+      key:'采分点是公式 Qc=P(tanφ₁−tanφ₂) 和 84kvar；只写“并联电容器”不写计算最多得一半分。易错是把 P 乘以 cosφ，或用 φ₁、φ₂ 的角度差直接计算。' },
+
+    { id:2, subject:'电工基础', title:'变压器并列运行的条件',
+      stem:'糖厂变电所因榨季负荷增长，需要将一台备用变压器与运行变压器并列供电。请说明并列运行必须满足的条件，以及不满足时会有什么后果。',
+      points:[
+        '变比相同（允许偏差一般不超过 ±0.5%）：变比不同会在两台变压器二次侧之间产生环流，增加损耗、影响出力。',
+        '连接组别相同：组别不同会使二次侧电压相位不一致，产生很大的电位差，相当于短路。',
+        '短路阻抗（阻抗电压）百分数相近（一般相差不超过 10%）：否则负荷分配不均，阻抗小的一台先过载。',
+        '容量比不宜相差过大（一般不超过 3:1），并确认相序一致、接线正确，并列前核相。',
+        '后果：不满足上述条件轻则环流发热、负荷不均，重则保护跳闸或损坏变压器。'
+      ],
+      key:'变比、组别、阻抗电压三条是核心；容量“相近”即可，不是必须完全相等。易错是把“容量相同”当成硬条件，或漏掉并列前核相。' },
+
+    { id:3, subject:'电工基础', title:'三相负载星形、三角形接法的关系',
+      stem:'动力车间一台三相异步电动机铭牌标有 380V/660V、△/Y。请说明两种接法下线电压与相电压、线电流与相电流的关系，并比较同一对称负载分别作星形、三角形连接时的功率。',
+      points:[
+        '星形接法：U线 = √3·U相，I线 = I相；三角形接法：U线 = U相，I线 = √3·I相。',
+        '同一对称负载 Z 接在同一线电压 U 上：星形时每相电压 U/√3、相电流 U/(√3Z)；三角形时每相电压 U、相电流 U/Z。',
+        '功率：P = √3·U线·I线·cosφ；代入可得星形 P_Y = (U²/Z)cosφ，三角形 P_Δ = (3U²/Z)cosφ，即 P_Δ = 3P_Y。',
+        '应用：Y-△ 启动正是利用“星形启动时电压、电流、转矩都降为三角形的 1/3”，启动后再切换为三角形运行。',
+        '铭牌 380/660V、△/Y 表示线电压 380V 时接三角形、660V 时接星形，保证每相绕组承受的电压相同。'
+      ],
+      key:'两个 √3 关系和 P_Δ=3P_Y 是采分点；易错是把线电压/相电压关系与线电流/相电流关系记反，或认为星形接法功率是三角形的 3 倍（实际相反）。' },
+
+    { id:4, subject:'工厂供配电', title:'漏电保护器的原理与选型',
+      stem:'糖厂压榨车间潮湿，手持电动工具回路经常发生漏电，需要加装漏电保护器。请说明其工作原理、末级选型参数和安装注意事项。',
+      points:[
+        '原理：零序电流互感器检测相线与中性线电流的相量和，正常时为零；发生漏电或人身触电时，部分电流经大地返回，相量和不再为零，达到整定值即脱扣切断电源。',
+        '选型：末级人身防护一般选额定动作电流不大于 30mA、动作时间不大于 0.1s；上级用于防火或分级保护可选 100~300mA 并带延时，上下级要有动作值和时间的级差。',
+        '安装：PE 线不得穿过零序电流互感器；负载侧 N 线不得重复接地；漏保应装在电源侧，接线后按试验按钮试跳。',
+        '配合：漏电保护是附加保护，不能代替保护接地/接零、绝缘、屏护和安全距离。',
+        '适用：潮湿场所、手持电动工具、移动式设备、临时用电回路应优先设置。'
+      ],
+      key:'“30mA、0.1s、零序电流、PE 线不穿互感器”是关键词；易错是认为装了漏保就可以取消接地或接零。' },
+
+    { id:5, subject:'工厂供配电', title:'停电、送电的倒闸操作顺序',
+      stem:'10kV 配电室要对一台出线柜停电检修。请写出停电和送电的倒闸操作顺序，并说明操作中的关键要求。',
+      points:[
+        '停电：断开断路器 → 拉开负荷侧隔离开关 → 拉开电源侧隔离开关。',
+        '送电：合上电源侧隔离开关 → 合上负荷侧隔离开关 → 合上断路器。',
+        '操作要求：填写操作票，双人操作、一人监护；核对设备名称、编号和位置；使用合格的安全用具；严禁带负荷拉合隔离开关。',
+        '停电后依次验电、装设接地线、悬挂标示牌和装设遮栏，完成后方可工作。',
+        '送电前收回工作票、拆除接地线、确认人员和工具撤离、拆除临时遮栏。'
+      ],
+      key:'顺序和“操作票+监护”是采分点；易错是停电时先拉电源侧隔离开关，或把送电顺序写反。' },
+
+    { id:6, subject:'工厂供配电', title:'“两票三制”与工作票的作用',
+      stem:'配电员要进入 10kV 高压室对开关柜进行清扫。请说明“两票三制”的具体内容，以及工作票在作业中起什么作用。',
+      points:[
+        '两票：工作票、操作票。工作票是准许工作的书面命令，写明工作任务、工作地点、安全措施、工作负责人和许可时间；操作票用于倒闸操作，逐项执行并监护。',
+        '三制：交接班制、巡回检查制、设备定期试验轮换制。',
+        '作业流程：工作票签发 → 工作许可 → 现场安全交底 → 工作监护 → 工作终结 → 验收送电。',
+        '保证安全的组织措施还包括工作许可、工作监护、工作间断/转移/终结制度；技术措施为停电、验电、装设接地线、悬挂标示牌和装设遮栏。',
+        '配电员不得擅自变更安全措施或扩大工作范围，发现违章应制止并报告。'
+      ],
+      key:'两票、三制名称要写全，工作票“书面命令、许可”是关键词；易错是把“工作许可制度”当成三制之一。' },
+
+    { id:7, subject:'工厂供配电', title:'短路电流的危害与限制措施',
+      stem:'糖厂 10kV 母线发生三相短路，值班员听到巨响并发现母线电压骤降。请说明短路的主要危害和限制短路电流的常用措施。',
+      points:[
+        '热效应：短路电流可达正常电流的几十倍，短时间内产生大量热量，烧毁导体、电缆和开关设备。',
+        '电动力：短路冲击电流产生很大的电动力，使母线、支持绝缘子和开关柜变形损坏。',
+        '电压骤降：短路点附近电压显著降低，影响其他用户正常用电，严重时破坏系统稳定。',
+        '停电与设备损坏：保护装置拒动或断路器开断能力不足时，可能造成设备爆炸和大面积停电。',
+        '限制措施：合理确定系统接线和分列运行、加装限流电抗器、选用开断能力足够的开关电器、提高继电保护动作速度、及时切除故障。'
+      ],
+      key:'热效应、电动力、电压骤降三条再加限流措施；易错是只答“烧坏设备”，不展开电动力和电压影响。' },
+
+    { id:8, subject:'电机与电气控制', title:'三相异步电动机启动方式的比较',
+      stem:'糖厂一台 75kW 泵用三相异步电动机直接启动时启动电流过大，厂用母线电压明显下降。请比较 Y-△、自耦降压、软启动和变频启动四种方式的特点与适用条件。',
+      points:[
+        'Y-△ 降压启动：适用于正常运行为三角形接法、轻载启动的电动机；启动电流和启动转矩都降为直接启动的 1/3；接线简单、成本低，但切换瞬间有二次冲击。',
+        '自耦降压启动：通过 65%、80% 等抽头降压，启动电流和转矩按电压的平方下降；适用于容量较大、轻载启动的场合；设备体积大，不宜频繁启动。',
+        '软启动：用晶闸管调压使电压平滑上升，启动电流一般限制在额定电流的 2~4 倍，启动结束由旁路接触器短接；适合泵、风机类负载。',
+        '变频启动：从低频、低压启动，启动电流小、启动转矩可控，还能实现无级调速；成本较高，适合需要调速或频繁启动的设备。',
+        '选择原则：泵类轻载优先软启动或变频；只有三角形接法且轻载才用 Y-△；重载启动必须核算启动转矩是否满足。'
+      ],
+      key:'四种方式的电流/转矩特点和适用条件是采分点；易错是认为 Y-△ 适用于任何电机，或忽略重载启动时转矩不足。' },
+
+    { id:9, subject:'电机与电气控制', title:'变频调速原理与变频器使用注意事项',
+      stem:'动力车间一台风机改为变频器控制。请说明变频调速的基本原理，以及安装、接线、参数设置和运行维护中的主要注意事项。',
+      points:[
+        '原理：由 n₁=60f/p，改变供电频率即可改变同步转速；基频以下保持 U/f 恒定以维持磁通，属恒转矩调速；基频以上电压不能超过额定值，磁通减弱，属恒功率（弱磁）调速。',
+        '接线：输入 R/S/T 接三相电源，输出 U/V/W 接电动机；输出端严禁接工频电源或电容器；变频器和电动机外壳、屏蔽层应可靠接地。',
+        '参数：按铭牌设置额定电压、额定电流、额定频率和极数；加速、减速时间按负载惯量设定，过短会过流或过压跳闸。',
+        '运行：电动机电缆较长时加输出电抗器；需要快速停车时配制动电阻；避免频繁启停；注意散热、防尘、防潮。',
+        '检修：断电后必须等待直流母线电容放电到安全电压（按说明书规定，通常需数分钟）再开柜，并用万用表确认无电。'
+      ],
+      key:'U/f、输出端严禁接电源或电容、加减速时间、断电放电等待是关键词；易错是把变频器输出端当作电源进线端。' },
+
+    { id:10, subject:'电机与电气控制', title:'热继电器与熔断器的区别',
+      stem:'一台 15kW 水泵电动机的控制柜内同时装有熔断器和热继电器。请说明两者各自的作用、区别，以及热继电器整定和熔体选择的依据。',
+      points:[
+        '熔断器：作短路保护，短路电流大时熔体迅速熔断切断电路；熔体额定电流一般按电动机额定电流的 1.5~2.5 倍选择，并校验启动时不误熔断。',
+        '热继电器：作过载保护，利用双金属片受热弯曲动作，具有反时限特性；不能用于短路保护。',
+        '区别：熔断器分断能力强、动作快，但过载保护特性差；热继电器能反映持续过载，动作后需复位，不能代替熔断器。',
+        '整定：热元件整定电流一般取电动机额定电流的 1.1~1.25 倍；轻载可取 1.0~1.1 倍，重载按说明书和实际工况调整。',
+        '配合：短路保护与过载保护必须同时具备；缺相、堵转等故障应由热继电器或电动机保护器反映。'
+      ],
+      key:'“熔断器管短路、热继电器管过载”和整定倍数是采分点；易错是用热继电器代替短路保护，或把熔体选得过大导致短路时拒动。' },
+
+    { id:11, subject:'电子技术', title:'单相桥式整流电容滤波电路',
+      stem:'配电柜内一块直流电源板采用单相桥式整流加电容滤波，变压器二次电压有效值 U₂=20V。请说明整流滤波原理，并估算输出直流电压和二极管承受的最大反向电压。',
+      points:[
+        '原理：四只二极管在正、负半周轮流导通，把交流变为脉动直流；电容在电压升高时充电、电压降低时放电，使输出平滑、平均值升高。',
+        '无滤波时：Uo ≈ 0.9U₂ = 0.9 × 20 = 18V。',
+        '有电容滤波且负载较轻时：Uo ≈ 1.2U₂ = 1.2 × 20 = 24V；负载加重时输出会下降，逐渐接近 0.9U₂。',
+        '二极管最大反向电压：桥式每只二极管承受 √2U₂ = 1.414 × 20 ≈ 28.3V。',
+        '选型：二极管额定电流按负载电流留 1.5~2 倍裕量，耐压按反向电压的 2~3 倍选取；滤波电容耐压应大于 √2U₂ 并留裕量。'
+      ],
+      key:'0.9、1.2 两个系数和 √2U₂ 是采分点；易错是把桥式二极管反向电压算成 2√2U₂（那是带电容滤波的半波整流），或滤波后仍按 0.9U₂ 计算。' },
+
+    { id:12, subject:'电气安全', title:'触电急救步骤',
+      stem:'巡检时发现一名同事倒在配电柜旁，手仍接触带电部位。请写出从发现到送医的急救步骤。',
+      points:[
+        '迅速脱离电源：立即拉闸、拔插头，或用干燥的绝缘物挑开导线；高压设备应通知停电，未停电时保持安全距离，不得直接靠近。',
+        '判断与呼救：判断意识、呼吸和心跳，立即呼救并拨打 120，同时让人取 AED。',
+        '心肺复苏：无呼吸、无心跳时立即按压，胸外按压 30 次、人工呼吸 2 次（30:2），按压频率 100~120 次/分，深度 5~6cm，每 2 分钟评估一次。',
+        '有呼吸心跳：就地平卧、保暖、保持气道通畅，密切观察，不随意搬动。',
+        '送医：即使恢复意识也应送医观察，防止迟发性心律失常；现场抢救尽量不要中断。'
+      ],
+      key:'“先断电再施救、30:2、呼救”是关键词；易错是直接用手拉触电者，或先喂水、掐人中而耽误心肺复苏。' },
+
+    { id:13, subject:'电气安全', title:'保护接零与保护接地的区别',
+      stem:'糖厂低压配电系统采用 TN-S 系统。请说明保护接零与保护接地的区别，以及为什么同一台变压器供电的低压系统不能同时混用两种方式。',
+      points:[
+        '保护接零（TN 系统）：设备外壳接 PE 线（TN-C 中为 PEN 线），PE 线与电源中性点相连；相线碰壳时形成单相短路，使熔断器或断路器迅速切断电源。',
+        '保护接地（TT、IT 系统）：设备外壳接独立接地体，不与电源中性线相连；靠降低外壳对地电压、限制故障电流来减轻触电危险，通常还要配合漏电保护器。',
+        'TN-S 特点：PE 与 N 全程分开，设备外壳接 PE，PE 正常时不通过工作电流；做重复接地可降低 PE 断线时的外壳电压。',
+        '不能混用：同一台变压器供电的低压系统若一部分设备接零、一部分设备接地，接地设备碰壳时故障电流经大地返回中性点，可能不足以使保护电器动作，却会使所有接零设备的外壳带上危险电压。',
+        '结论：同一低压配电系统只能采用一种保护方式，按设计统一执行。'
+      ],
+      key:'“接零靠单相短路跳闸、接地靠降低对地电压”和“混用危险”是采分点；易错是把保护接零说成“接大地”，或认为接零后不需要重复接地。' },
+
+    { id:14, subject:'电气安全', title:'设备不停电时的安全距离',
+      stem:'在 10kV 高压配电室进行不停电巡检，隔壁是 35kV 设备区。请说明设备不停电时的安全距离要求，以及验电、装设接地线时的距离和防护要求。',
+      points:[
+        '设备不停电时的安全距离：10kV 及以下 0.70m，20/35kV 1.00m，66/110kV 1.50m，220kV 3.00m，500kV 5.00m（按现行《电力安全工作规程》）。',
+        '相邻间隔按较高电压等级控制，不同电压等级的数值不得混用；0.35m 是工作人员正常活动范围与带电设备的安全距离（10kV），不是设备不停电时的安全距离。',
+        '验电：戴绝缘手套，使用相应电压等级且合格的验电器，先在有电设备上确证验电器良好，再逐相验电。',
+        '装设接地线：验明无电后立即装设；先接接地端、后接导体端，拆除时顺序相反；操作人员戴绝缘手套、使用绝缘杆，人体不得碰触接地线。',
+        '现场应装设遮栏和标示牌，禁止越过遮栏；雷雨、大风等恶劣天气避免在室外靠近带电设备。'
+      ],
+      key:'0.7/1.0/1.5m 和“先接接地端”是采分点；易错是把 10kV 记成 0.35m，或把接地线装设顺序接反。' },
+
+    { id:15, subject:'电气安全', title:'绝缘电阻测量',
+      stem:'一台长期停用的 380V 水泵电动机重新投运前，需要测量绝缘电阻。请说明仪表选择、测量步骤和合格判据。',
+      points:[
+        '仪表：380V 低压设备一般选用 500V 兆欧表；1kV 设备用 1000V 兆欧表；高压设备用 2500V 兆欧表，按设备电压等级选择。',
+        '步骤：切断电源、验电、充分放电；断开变频器、电子元件和接线端子；L 接导体、E 接外壳、G 接屏蔽层；匀速摇测约 1 分钟读数。',
+        '结束：先断开 L 端再停止摇动，测后对设备充分放电，防止残余电荷伤人。',
+        '判据：低压电动机冷态绝缘电阻一般不低于 0.5MΩ；1kV 及以上电动机按现行规程和厂家要求（常参考每千伏不低于 1MΩ，并结合吸收比），不能直接套用 0.5MΩ。',
+        '处理：受潮时可烘干、吹扫；绝缘不合格不得投运；测量时不得触及导体，雷雨天禁止测量线路绝缘。'
+      ],
+      key:'500V 兆欧表、0.5MΩ、先放电后测量是采分点；易错是带电测量、测完不放电，或把低压 0.5MΩ 套用到高压设备。' }
+  ];
+
+  /* ===================== 数字速记 26 条 ===================== */
+  const NUM_GROUPS = [
+    { title:'① 安全距离与电压等级', rows:[
+      ['10kV 及以下设备不停电时的安全距离','0.70m','巡检、验电、装接地线等接近带电设备','0.35m 是“正常活动范围与带电设备”的距离，不要混用'],
+      ['20/35kV 设备不停电时的安全距离','1.00m','同上','与 10kV 的 0.70m 区分'],
+      ['66/110kV 设备不停电时的安全距离','1.50m','同上','相邻间隔按较高电压等级控制'],
+      ['220kV / 500kV 设备不停电时的安全距离','3.00m / 5.00m','同上','330kV 为 4.00m'],
+      ['高压设备接地故障点接近距离','室内 4m、室外 8m','发生接地故障时；进入范围应穿绝缘靴','跨步电压，不要大步跑离'],
+      ['验电、装设接地线','不小于设备不停电时的安全距离（10kV 为 0.70m）；戴绝缘手套、用绝缘杆','先验电、后接地；先接接地端、后接导体端','接地线顺序接反、未验电就接地'],
+      ['安全电压额定值','42/36/24/12/6V；一般场所行灯 36V，潮湿/金属容器内 12V','GB/T 3805','18V 不是安全电压等级']
+    ]},
+    { title:'② 接地与接零', rows:[
+      ['低压保护接地电阻','一般 ≤4Ω','保护接地（TT/IT 系统）','与重复接地的 10Ω 区分；以设计文件为准'],
+      ['重复接地电阻','一般 ≤10Ω','PE/PEN 线在电源中性点以外再次接地','不是 4Ω；PEN 线上严禁装开关和熔断器'],
+      ['独立避雷针接地电阻','一般 ≤10Ω','独立避雷针、防雷接地','宜与被保护设备接地分开敷设，防止反击'],
+      ['TN-S 系统','PE 与 N 全程分开，PE 不通过工作电流','三相五线制','不能把 N 与 PE 合并成 PEN']
+    ]},
+    { title:'③ 绝缘与试验', rows:[
+      ['低压线路、设备绝缘电阻','≥0.5MΩ','380/220V 设备冷态','高压设备不能套用 0.5MΩ'],
+      ['1kV 及以上电动机绝缘电阻','≥1MΩ/kV（接近运行温度），并结合吸收比','GB 50150 及厂家要求','以交接/预防性试验规程为准'],
+      ['兆欧表电压选择','500V / 1000V / 2500V','380V 低压 / 1kV / 高压设备','不能用万用表电阻挡测绝缘'],
+      ['安全用具试验周期','绝缘手套、绝缘靴 6 个月；绝缘杆、验电器 12 个月','电力安全工器具预防性试验','以 DL/T 976 及单位规定为准；超期不得使用']
+    ]},
+    { title:'④ 人体电流与漏电保护', rows:[
+      ['摆脱电流','工频约 10mA','成年人体，50Hz','超过后不能自主摆脱，不是安全电流'],
+      ['致命电流','工频 50mA 可致心室颤动','短时间通过人体','常作为致命电流界限'],
+      ['末级漏电保护器','额定动作电流 30mA、动作时间 ≤0.1s','手持工具、插座、潮湿场所人身防护','装漏保不能取消保护接地/接零'],
+      ['心肺复苏','30:2；100~120 次/分；深度 5~6cm','成人触电后无呼吸、无心跳','先脱离电源再施救']
+    ]},
+    { title:'⑤ 其他高频数字', rows:[
+      ['10kV 三相供电电压偏差','±7%','GB/T 12325','35kV 及以上为 ±10%（正负偏差绝对值之和）'],
+      ['功率因数要求','高压供电用户 ≥0.90；低压用户 ≥0.85','按《功率因数调整电费办法》/供用电合同','过补偿会无功倒送'],
+      ['变压器并列运行','变比差 ≤±0.5%；阻抗电压差 ≤10%；容量比 ≤3:1','并列运行','容量不必完全相等'],
+      ['变压器最高效率','铜损=铁损，负载率约 50%~75%','效率曲线','不是额定负载时效率最高'],
+      ['三相功率与接法','P=√3·U线·I线·cosφ；星形 U线=√3U相；三角形 I线=√3I相','三相对称负载','两个 √3 关系不要记反'],
+      ['同步转速与转差率','n₁=60f/p；s=(n₁−n)/n₁','三相异步电动机','四极电机 p=2，n₁=1500r/min'],
+      ['RC 时间常数','τ=RC；3~5τ 基本完成','电容充放电','单位换算：kΩ×μF=ms']
+    ]}
+  ];
+
+  /* ===================== 基础常量与存储 ===================== */
+  const TYPE_LABEL = { single: '单选', multi: '多选', judge: '判断' };
+  const SUBJECTS = Array.from(new Set(QUESTIONS.map(function (q) { return q.subject; })));
+  const ALL_IDS = QUESTIONS.map(function (q) { return q.id; });
+  const QMAP = new Map(QUESTIONS.map(function (q) { return [q.id, q]; }));
+  const TOTAL = QUESTIONS.length;
+  const LETTERS = 'ABCDEFG';
+  const STORE_KEY = 'gkgk_sprint_v1';
+
+  // localStorage 不可用时退化为内存存储
+  var memStore = Object.create(null);
+  var storageOK = true;
+  try {
+    window.localStorage.setItem('__gkgk_probe', '1');
+    window.localStorage.removeItem('__gkgk_probe');
+  } catch (e) {
+    storageOK = false;
+  }
+  var store = {
+    get: function () {
+      if (storageOK) {
+        try { return window.localStorage.getItem(STORE_KEY); } catch (e) { return memStore[STORE_KEY] || null; }
+      }
+      return memStore[STORE_KEY] || null;
+    },
+    set: function (v) {
+      memStore[STORE_KEY] = v;
+      if (!storageOK) return;
+      try { window.localStorage.setItem(STORE_KEY, v); } catch (e) { storageOK = false; }
+    },
+    clear: function () {
+      delete memStore[STORE_KEY];
+      if (!storageOK) return;
+      try { window.localStorage.removeItem(STORE_KEY); } catch (e) {}
+    }
+  };
+
+  function blankState() {
+    return {
+      mode: 'practice',
+      subject: '全部',
+      wrongOnly: false,
+      order: 'seq',
+      randOrder: null,
+      answers: {},
+      done: {},
+      hist: {},
+      wrong: [],
+      shuffle: {},
+      exam: { ids: [], answers: {}, phase: 'idle' },
+      shortIdx: 0,
+      shortOpen: {},
+      shortTab: 'qa',
+      collapse: false,
+      idx: 0
+    };
+  }
+
+  var state = blankState();
+  var ui = {
+    sheet: null,
+    toastTimer: 0,
+    resetArm: false,
+    resetTimer: 0,
+    hold: null
+  };
+
+  function cleanSel(obj) {
+    Object.keys(obj).forEach(function (k) {
+      var q = QMAP.get(Number(k));
+      if (!q || !Array.isArray(obj[k])) { delete obj[k]; return; }
+      var next = [];
+      obj[k].forEach(function (i) {
+        i = Number(i);
+        if (Number.isInteger(i) && i >= 0 && i < q.options.length && next.indexOf(i) < 0) next.push(i);
+      });
+      obj[k] = next.sort(function (a, b) { return a - b; });
+    });
+  }
+
+  function load() {
+    var raw = store.get();
+    if (!raw) return;
+    var s;
+    try { s = JSON.parse(raw); } catch (e) { return; }
+    if (!s || typeof s !== 'object') return;
+
+    var st = blankState();
+    Object.keys(st).forEach(function (k) {
+      if (s[k] !== undefined) st[k] = s[k];
+    });
+    st.exam = Object.assign({ ids: [], answers: {}, phase: 'idle' }, s.exam && typeof s.exam === 'object' ? s.exam : {});
+    st.answers = s.answers && typeof s.answers === 'object' ? s.answers : {};
+    st.done = s.done && typeof s.done === 'object' ? s.done : {};
+    st.hist = s.hist && typeof s.hist === 'object' ? s.hist : {};
+    st.shuffle = s.shuffle && typeof s.shuffle === 'object' ? s.shuffle : {};
+    st.wrong = Array.isArray(s.wrong) ? s.wrong : [];
+    st.randOrder = Array.isArray(s.randOrder) ? s.randOrder : null;
+    st.idx = Number.isFinite(Number(s.idx)) ? Math.max(0, Math.floor(Number(s.idx))) : 0;
+    st.mode = s.mode === 'exam' ? 'exam' : (s.mode === 'short' ? 'short' : 'practice');
+    st.order = s.order === 'random' ? 'random' : 'seq';
+    st.subject = s.subject === '全部' || SUBJECTS.indexOf(s.subject) >= 0 ? s.subject : '全部';
+    st.wrongOnly = !!s.wrongOnly;
+    st.collapse = !!s.collapse;
+    st.shortIdx = Number.isFinite(Number(s.shortIdx)) ? Math.max(0, Math.floor(Number(s.shortIdx))) : 0;
+    st.shortIdx = Math.min(st.shortIdx, SHORT_QA.length - 1);
+    st.shortOpen = s.shortOpen && typeof s.shortOpen === 'object' ? s.shortOpen : {};
+    Object.keys(st.shortOpen).forEach(function (k) {
+      if (!SHORT_QA.some(function (q) { return q.id === Number(k); })) delete st.shortOpen[k];
+    });
+    st.shortTab = s.shortTab === 'num' ? 'num' : 'qa';
+
+    st.wrong = st.wrong.filter(function (id) { return QMAP.has(id); });
+    st.exam.ids = (Array.isArray(st.exam.ids) ? st.exam.ids : []).filter(function (id) { return QMAP.has(id); });
+    if (['idle', 'running', 'result', 'review'].indexOf(st.exam.phase) < 0) st.exam.phase = 'idle';
+    if (!st.exam.ids.length) st.exam.phase = 'idle';
+    if (!st.exam.answers || typeof st.exam.answers !== 'object') st.exam.answers = {};
+
+    cleanSel(st.answers);
+    cleanSel(st.exam.answers);
+    Object.keys(st.done).forEach(function (k) { if (!QMAP.has(Number(k))) delete st.done[k]; });
+    Object.keys(st.hist).forEach(function (k) { if (!QMAP.has(Number(k))) delete st.hist[k]; });
+    Object.keys(st.shuffle).forEach(function (k) {
+      var q = QMAP.get(Number(k));
+      var p = st.shuffle[k];
+      if (!q || !Array.isArray(p) || p.length !== q.options.length) delete st.shuffle[k];
+    });
+
+    state = st;
+  }
+
+  function save() {
+    try { store.set(JSON.stringify(state)); } catch (e) {}
+  }
+
+  /* ===================== 工具函数 ===================== */
+  function esc(s) {
+    return String(s).replace(/[&<>"]/g, function (m) {
+      return m === '&' ? '&amp;' : m === '<' ? '&lt;' : m === '>' ? '&gt;' : '&quot;';
+    });
+  }
+  function shuffleArr(a) {
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+  function isCorrect(q, sel) {
+    if (!q || !Array.isArray(sel) || sel.length !== q.answer.length) return false;
+    for (var i = 0; i < q.answer.length; i++) {
+      if (sel.indexOf(q.answer[i]) < 0) return false;
+    }
+    return true;
+  }
+
+  // 选项乱序映射：返回数组 perm，perm[显示位置] = 原始索引；同一题保持稳定
+  function permFor(q) {
+    if (q.type === 'judge') return [0, 1];
+    var cached = state.shuffle[q.id];
+    if (Array.isArray(cached) && cached.length === q.options.length) {
+      var ok = true;
+      for (var i = 0; i < cached.length; i++) {
+        if (!Number.isInteger(cached[i]) || cached[i] < 0 || cached[i] >= q.options.length) { ok = false; break; }
+      }
+      if (ok) return cached;
+    }
+    var p = q.options.map(function (_, i) { return i; });
+    shuffleArr(p);
+    state.shuffle[q.id] = p;
+    save();
+    return p;
+  }
+
+  function subjectIds() {
+    return QUESTIONS.filter(function (q) {
+      return state.subject === '全部' || q.subject === state.subject;
+    }).map(function (q) { return q.id; });
+  }
+
+  function orderedIds(ids) {
+    if (state.order !== 'random') return ids;
+    if (!Array.isArray(state.randOrder) || !state.randOrder.length) {
+      state.randOrder = shuffleArr(ALL_IDS.slice());
+      save();
+    }
+    var missing = ALL_IDS.filter(function (id) { return state.randOrder.indexOf(id) < 0; });
+    if (missing.length) {
+      state.randOrder = state.randOrder.concat(shuffleArr(missing));
+      save();
+    }
+    var pos = new Map();
+    state.randOrder.forEach(function (id, i) { pos.set(id, i); });
+    return ids.slice().sort(function (a, b) {
+      var pa = pos.has(a) ? pos.get(a) : 1e9;
+      var pb = pos.has(b) ? pos.get(b) : 1e9;
+      return pa - pb;
+    });
+  }
+
+  function currentIds() {
+    var ids = orderedIds(subjectIds());
+    if (state.wrongOnly) {
+      ids = ids.filter(function (id) {
+        return state.wrong.indexOf(id) >= 0 || id === ui.hold;
+      });
+    }
+    return ids;
+  }
+
+  function activeIds() {
+    return state.mode === 'exam' ? state.exam.ids : currentIds();
+  }
+
+  function curIdx(ids) {
+    if (!ids.length) return 0;
+    return Math.min(Math.max(state.idx, 0), ids.length - 1);
+  }
+
+  function curQ() {
+    var ids = activeIds();
+    return QMAP.get(ids[curIdx(ids)]);
+  }
+
+  function view() {
+    if (state.mode === 'short') return 'short';
+    if (state.mode === 'practice') return currentIds().length ? 'quiz' : 'empty';
+    var ex = state.exam;
+    if (!ex.ids.length || ex.phase === 'idle') return 'examIntro';
+    if (ex.phase === 'result') return 'result';
+    if (ex.phase === 'review') return 'review';
+    return 'examQuiz';
+  }
+
+  function examStats() {
+    var c = 0, w = 0, b = 0, n = state.exam.ids.length;
+    state.exam.ids.forEach(function (id) {
+      var q = QMAP.get(id);
+      var s = state.exam.answers[id] || [];
+      if (!s.length) { b++; return; }
+      if (isCorrect(q, s)) c++; else w++;
+    });
+    return { c: c, w: w, b: b, n: n, score: n ? Math.round(c / n * 100) : 0 };
+  }
+
+  function bumpHist(id, ok) {
+    var h = state.hist[id];
+    if (!h || typeof h !== 'object') h = { t: 0, c: 0 };
+    h.t = (Number(h.t) || 0) + 1;
+    h.c = (Number(h.c) || 0) + (ok ? 1 : 0);
+    state.hist[id] = h;
+  }
+
+  function addWrong(id) {
+    if (state.wrong.indexOf(id) < 0) state.wrong.push(id);
+  }
+  function removeWrong(id) {
+    var i = state.wrong.indexOf(id);
+    if (i >= 0) state.wrong.splice(i, 1);
+  }
+
+  function subjectStats(sub) {
+    var total = 0, doneN = 0, t = 0, c = 0;
+    QUESTIONS.forEach(function (q) {
+      if (q.subject !== sub) return;
+      total++;
+      if (state.done[q.id]) doneN++;
+      var h = state.hist[q.id];
+      if (h && Number(h.t) > 0) { t += Number(h.t); c += Number(h.c) || 0; }
+    });
+    return { total: total, done: doneN, t: t, c: c, pct: t ? Math.round(c / t * 100) : null };
+  }
+
+  function answerText(q, perm) {
+    if (q.type === 'judge') return q.answer[0] === 0 ? '正确' : '错误';
+    var out = [];
+    perm.forEach(function (orig, pos) {
+      if (q.answer.indexOf(orig) >= 0) out.push(LETTERS.charAt(pos));
+    });
+    return out.sort().join('、');
+  }
+
+  function toTop() {
+    try { window.scrollTo(0, 0); } catch (e) {}
+  }
+
+  function toast(msg) {
+    var el = document.getElementById('toast');
+    if (!el) return;
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(ui.toastTimer);
+    ui.toastTimer = window.setTimeout(function () { el.classList.remove('show'); }, 1900);
+  }
+
+  function fatal(msg) {
+    var el = document.getElementById('fatal');
+    if (!el) return;
+    el.hidden = false;
+    el.textContent = '页面出现异常：' + (msg || '未知错误') + '。可尝试刷新页面；本页面不依赖网络，刷新不会丢失进度。';
+  }
+
+  /* ===================== 状态操作 ===================== */
+  function setMode(m) {
+    if (['practice', 'exam', 'short'].indexOf(m) < 0) return;
+    if (state.mode === m) return;
+    state.mode = m;
+    state.idx = 0;
+    ui.hold = null;
+    save();
+    render();
+    toTop();
+    if (m === 'exam') {
+      if (!state.exam.ids.length) toast('考试模式：先开始一场考试');
+      else if (state.exam.phase === 'running') toast('已恢复未交卷的考试');
+    } else if (m === 'short') {
+      toast('简答模式：先想答案，再展开对照');
+    } else {
+      toast('已切换到练习模式');
+    }
+  }
+
+  function setSubject(sub) {
+    state.subject = sub;
+    state.wrongOnly = false;
+    state.idx = 0;
+    ui.hold = null;
+    save();
+    render();
+    toTop();
+  }
+
+  function setOrder() {
+    state.order = state.order === 'seq' ? 'random' : 'seq';
+    if (state.order === 'random') state.randOrder = shuffleArr(ALL_IDS.slice());
+    state.idx = 0;
+    ui.hold = null;
+    save();
+    render();
+    toTop();
+    toast(state.order === 'seq' ? '已切换为顺序练习' : '已切换为随机练习');
+  }
+
+  function step(d) {
+    if (state.mode === 'short') { shortStep(d); return; }
+    var ids = activeIds();
+    if (!ids.length) return;
+    var i = curIdx(ids);
+    var n = Math.min(Math.max(i + d, 0), ids.length - 1);
+    ui.hold = null;
+    if (n === i) return;
+    state.idx = n;
+    save();
+    render();
+    toTop();
+  }
+
+  function jumpTo(i) {
+    var ids = activeIds();
+    if (i < 0 || i >= ids.length) return;
+    ui.hold = null;
+    state.idx = i;
+    ui.sheet = null;
+    save();
+    render();
+    toTop();
+  }
+
+  function chooseOption(orig) {
+    var v = view();
+    if (v !== 'quiz' && v !== 'examQuiz') return;
+    var q = curQ();
+    if (!q) return;
+
+    if (state.mode === 'practice') {
+      if (state.done[q.id]) { toast('本题已作答，不能修改'); return; }
+      if (q.type === 'multi') {
+        var cur = (state.answers[q.id] || []).slice();
+        var idx = cur.indexOf(orig);
+        if (idx >= 0) cur.splice(idx, 1); else cur.push(orig);
+        state.answers[q.id] = cur.sort(function (a, b) { return a - b; });
+        save();
+        render();
+      } else {
+        state.answers[q.id] = [orig];
+        state.done[q.id] = true;
+        var wasWrong = state.wrong.indexOf(q.id) >= 0;
+        var ok = isCorrect(q, [orig]);
+        bumpHist(q.id, ok);
+        if (ok) { removeWrong(q.id); if (state.wrongOnly) ui.hold = q.id; }
+        else addWrong(q.id);
+        save();
+        render();
+        if (ok) toast(wasWrong ? '回答正确，已移出错题本' : '回答正确');
+        else toast('回答错误，已加入错题本');
+      }
+    } else {
+      var s = (state.exam.answers[q.id] || []).slice();
+      if (q.type === 'multi') {
+        var k = s.indexOf(orig);
+        if (k >= 0) s.splice(k, 1); else s.push(orig);
+        state.exam.answers[q.id] = s.sort(function (a, b) { return a - b; });
+      } else {
+        state.exam.answers[q.id] = [orig];
+      }
+      save();
+      render();
+    }
+  }
+
+  function confirmMulti() {
+    var q = curQ();
+    if (!q || q.type !== 'multi') return;
+    if (state.done[q.id]) return;
+    var sel = state.answers[q.id] || [];
+    if (!sel.length) { toast('请先选择答案'); return; }
+    state.done[q.id] = true;
+    var ok = isCorrect(q, sel);
+    bumpHist(q.id, ok);
+    if (ok) { removeWrong(q.id); if (state.wrongOnly) ui.hold = q.id; }
+    else addWrong(q.id);
+    save();
+    render();
+    toast(ok ? '回答正确' : '回答错误，已加入错题本');
+  }
+
+  function startExam() {
+    var ids = orderedIds(subjectIds());
+    if (!ids.length) { toast('当前范围没有题目'); return; }
+    state.exam = { ids: ids.slice(), answers: {}, phase: 'running' };
+    state.mode = 'exam';
+    state.idx = 0;
+    state.wrongOnly = false;
+    ui.hold = null;
+    ui.sheet = null;
+    save();
+    render();
+    toTop();
+    toast('考试开始，共 ' + ids.length + ' 题');
+  }
+
+  function openSubmit() {
+    if (!state.exam.ids.length) return;
+    ui.sheet = 'submit';
+    render();
+  }
+
+  function submitExam() {
+    if (!state.exam.ids.length || state.exam.phase === 'result') return;
+    state.exam.ids.forEach(function (id) {
+      var q = QMAP.get(id);
+      var s = state.exam.answers[id] || [];
+      if (!s.length) return; // 未作答不计入作答统计与错题本
+      var ok = isCorrect(q, s);
+      bumpHist(id, ok);
+      if (ok) removeWrong(id); else addWrong(id);
+    });
+    state.exam.phase = 'result';
+    state.idx = 0;
+    ui.hold = null;
+    ui.sheet = null;
+    save();
+    render();
+    toTop();
+  }
+
+  function enterReview() {
+    if (!state.exam.ids.length) return;
+    state.exam.phase = 'review';
+    state.idx = 0;
+    ui.hold = null;
+    save();
+    render();
+    toTop();
+  }
+
+  function exitReview() {
+    state.exam.phase = 'result';
+    state.idx = 0;
+    save();
+    render();
+    toTop();
+  }
+
+  /* ===================== 简答与速记 ===================== */
+  function shortCur() {
+    return SHORT_QA[Math.min(Math.max(state.shortIdx, 0), SHORT_QA.length - 1)];
+  }
+  function shortStep(d) {
+    if (state.shortTab !== 'qa') return;
+    var n = Math.min(Math.max(state.shortIdx + d, 0), SHORT_QA.length - 1);
+    if (n === state.shortIdx) return;
+    state.shortIdx = n;
+    save();
+    render();
+    toTop();
+  }
+  function shortReveal() {
+    var q = shortCur();
+    if (!q) return;
+    state.shortOpen[q.id] = true;
+    save();
+    render();
+  }
+  function shortHide() {
+    var q = shortCur();
+    if (!q) return;
+    delete state.shortOpen[q.id];
+    save();
+    render();
+  }
+  function shortTab(t) {
+    state.shortTab = t === 'num' ? 'num' : 'qa';
+    save();
+    render();
+    toTop();
+  }
+  function numRowCount() {
+    var n = 0;
+    NUM_GROUPS.forEach(function (g) { n += g.rows.length; });
+    return n;
+  }
+  function shortTabBar(tab) {
+    return '<div class="tabs">' +
+      '<button class="tab" data-act="qaTab" aria-pressed="' + (tab === 'qa') + '">简答题 ' + SHORT_QA.length + '</button>' +
+      '<button class="tab" data-act="numTab" aria-pressed="' + (tab === 'num') + '">数字速记 ' + numRowCount() + '</button>' +
+      '</div>';
+  }
+  function shortViewHtml() {
+    var tab = state.shortTab === 'num' ? 'num' : 'qa';
+    if (tab === 'num') return shortTabBar(tab) + numTableHtml();
+    return shortTabBar(tab) + shortCardHtml(shortCur());
+  }
+  function shortCardHtml(q) {
+    if (!q) return '<section class="card empty"><h2>暂无简答题</h2></section>';
+    var i = Math.min(Math.max(state.shortIdx, 0), SHORT_QA.length - 1);
+    var open = !!state.shortOpen[q.id];
+    var points = q.points.map(function (p) { return '<li>' + esc(p) + '</li>'; }).join('');
+    var answer = open
+      ? '<div class="qaAns">' +
+          '<div class="qaH">参考答案</div>' +
+          '<ol class="qaOl">' + points + '</ol>' +
+          '<div class="qaKey"><b>评分要点/易错点：</b>' + esc(q.key) + '</div>' +
+          '<button class="revealBtn" data-act="shortHide">收起答案</button>' +
+        '</div>'
+      : '<button class="revealBtn" data-act="shortReveal">显示参考答案</button>';
+    return '<section class="card qa">' +
+      '<div class="meta"><span class="tag">' + esc(q.subject) + '</span><span class="tag t2">简答</span>' +
+      '<span class="num">' + (i + 1) + '/' + SHORT_QA.length + '</span></div>' +
+      '<div class="kicker">' + esc(q.title) + '</div>' +
+      '<h2 class="stem">' + esc(q.stem) + '</h2>' +
+      '<p class="hint">先自己按“关键词 + 分点”组织答案，再展开对照；考试作答时把关键数字和顺序写全。</p>' +
+      answer +
+      '</section>';
+  }
+  function numTableHtml() {
+    return NUM_GROUPS.map(function (g) {
+      var rows = g.rows.map(function (r) {
+        return '<div class="nrow">' +
+          '<div class="nc c1" data-l="项目">' + esc(r[0]) + '</div>' +
+          '<div class="nc c2" data-l="数值">' + esc(r[1]) + '</div>' +
+          '<div class="nc" data-l="适用条件">' + esc(r[2]) + '</div>' +
+          '<div class="nc" data-l="易错提醒">' + esc(r[3]) + '</div>' +
+          '</div>';
+      }).join('');
+      return '<section class="card ncard"><h3 class="ngh">' + esc(g.title) + '</h3>' +
+        '<div class="ntable"><div class="nhead"><span>项目</span><span>数值</span><span>适用条件</span><span>易错提醒</span></div>' +
+        rows + '</div></section>';
+    }).join('');
+  }
+
+  function primaryAct() {
+    if (state.mode === 'short') {
+      if (state.shortTab === 'num') { shortTab('qa'); return; }
+      var sq = shortCur();
+      if (!state.shortOpen[sq.id]) { shortReveal(); return; }
+      if (state.shortIdx >= SHORT_QA.length - 1) { toast('15 道简答已过完，可切到「数字速记」'); return; }
+      shortStep(1);
+      return;
+    }
+    var v = view();
+    if (v === 'empty') { showAll(); return; }
+    if (v === 'examIntro') { startExam(); return; }
+    if (v === 'result') { enterReview(); return; }
+    if (v === 'review') {
+      var rIds = activeIds();
+      if (curIdx(rIds) >= rIds.length - 1) exitReview(); else step(1);
+      return;
+    }
+    var q = curQ();
+    if (!q) return;
+    if (state.mode === 'practice') {
+      if (q.type === 'multi' && !state.done[q.id]) { confirmMulti(); return; }
+      var ids = activeIds();
+      if (curIdx(ids) >= ids.length - 1) { openStats(); toast('本轮已到最后一题'); return; }
+      step(1);
+    } else {
+      var eIds = activeIds();
+      if (curIdx(eIds) >= eIds.length - 1) openSubmit(); else step(1);
+    }
+  }
+
+  function showAll() {
+    state.subject = '全部';
+    state.wrongOnly = false;
+    state.idx = 0;
+    ui.hold = null;
+    save();
+    render();
+  }
+
+  function openStats() {
+    ui.sheet = 'stats';
+    render();
+  }
+  function openSheet(kind) {
+    ui.sheet = kind;
+    render();
+  }
+  function closeSheet() {
+    ui.sheet = null;
+    render();
+  }
+
+  function doReset() {
+    state.answers = {};
+    state.done = {};
+    state.hist = {};
+    state.wrong = [];
+    state.exam = { ids: [], answers: {}, phase: 'idle' };
+    state.idx = 0;
+    state.wrongOnly = false;
+    state.shortOpen = {};
+    state.shortIdx = 0;
+    state.shortTab = 'qa';
+    ui.hold = null;
+    ui.sheet = null;
+    ui.resetArm = false;
+    save();
+    render();
+  }
+
+  /* ===================== 渲染：顶部 ===================== */
+  function renderTop() {
+    var chips = document.getElementById('chips');
+    var stats = document.getElementById('stats');
+    var pfill = document.getElementById('pfill');
+    var pbar = document.getElementById('pbar');
+    var foldBtn = document.getElementById('foldBtn');
+    var orderBtn = document.getElementById('orderBtn');
+
+    stats.hidden = state.collapse;
+    chips.hidden = state.collapse || state.mode !== 'practice';
+    foldBtn.textContent = state.collapse ? '⌄' : '⌃';
+    foldBtn.setAttribute('aria-expanded', state.collapse ? 'false' : 'true');
+    orderBtn.textContent = state.order === 'seq' ? '顺序出题' : '随机出题';
+    orderBtn.hidden = state.mode === 'short';
+
+    var segs = document.querySelectorAll('.seg button');
+    for (var i = 0; i < segs.length; i++) {
+      segs[i].setAttribute('aria-pressed', segs[i].getAttribute('data-mode') === state.mode ? 'true' : 'false');
+    }
+
+    var html = '';
+    var pct = 0;
+    var scopeIds;
+    var v = view();
+
+    if (state.mode === 'short') {
+      var opened = 0;
+      SHORT_QA.forEach(function (q) { if (state.shortOpen[q.id]) opened++; });
+      if (state.shortTab === 'num') {
+        pct = 0;
+        html += '<div class="stat"><b>' + numRowCount() + '</b><span>速记条</span></div>';
+        html += '<div class="stat"><b>' + NUM_GROUPS.length + '</b><span>分组</span></div>';
+        html += '<div class="stat"><b>' + SHORT_QA.length + '</b><span>简答题</span></div>';
+        html += '<button class="stat" data-act="qaTab"><b>去看</b><span>简答题</span></button>';
+      } else {
+        pct = SHORT_QA.length ? Math.round(opened / SHORT_QA.length * 100) : 0;
+        html += '<div class="stat"><b>' + opened + '<i>/' + SHORT_QA.length + '</i></b><span>已展开</span></div>';
+        html += '<div class="stat"><b>' + SHORT_QA.length + '</b><span>简答题</span></div>';
+        html += '<div class="stat"><b>' + numRowCount() + '</b><span>速记条</span></div>';
+        html += '<button class="stat" data-act="numTab"><b>去看</b><span>数字速记</span></button>';
+      }
+    } else if (state.mode === 'exam' && (v === 'result' || v === 'review' || v === 'examQuiz')) {
+      var st = examStats();
+      var doneN = st.c + st.w;
+      pct = st.n ? Math.round(doneN / st.n * 100) : 0;
+      if (v === 'result' || v === 'review') {
+        html += '<div class="stat"><b>' + st.score + '</b><span>得分</span></div>';
+        html += '<div class="stat"><b>' + st.c + '</b><span>正确</span></div>';
+        html += '<div class="stat"><b>' + st.w + '</b><span>错误</span></div>';
+        html += '<div class="stat"><b>' + st.b + '</b><span>未答</span></div>';
+      } else {
+        html += '<div class="stat"><b>' + doneN + '<i>/' + st.n + '</i></b><span>已答</span></div>';
+        html += '<div class="stat"><b>' + (st.n - doneN) + '</b><span>未答</span></div>';
+        html += '<div class="stat"><b>' + st.n + '</b><span>共题</span></div>';
+        html += '<button class="stat" data-act="card"><b>跳转</b><span>答题卡</span></button>';
+      }
+    } else if (state.mode === 'exam' && v === 'examIntro') {
+      scopeIds = subjectIds();
+      var practiced = 0, wrongIntro = 0;
+      scopeIds.forEach(function (id) {
+        if (state.done[id]) practiced++;
+        if (state.wrong.indexOf(id) >= 0) wrongIntro++;
+      });
+      pct = 0;
+      html += '<div class="stat"><b>' + scopeIds.length + '</b><span>本次题量</span></div>';
+      html += '<div class="stat"><b>' + practiced + '</b><span>已练</span></div>';
+      html += '<div class="stat"><b>' + wrongIntro + '</b><span>错题</span></div>';
+      html += '<button class="stat" data-act="stats"><b>查看</b><span>备考数据</span></button>';
+    } else {
+      scopeIds = subjectIds();
+      var answered = 0, correct = 0, wrongN = 0;
+      scopeIds.forEach(function (id) {
+        if (state.done[id]) {
+          answered++;
+          if (isCorrect(QMAP.get(id), state.answers[id] || [])) correct++;
+        }
+        if (state.wrong.indexOf(id) >= 0) wrongN++;
+      });
+      pct = scopeIds.length ? Math.round(answered / scopeIds.length * 100) : 0;
+      var rate = answered ? Math.round(correct / answered * 100) : null;
+      html += '<div class="stat"><b>' + answered + '<i>/' + scopeIds.length + '</i></b><span>已答</span></div>';
+      html += '<div class="stat"><b>' + correct + '</b><span>正确</span></div>';
+      html += '<div class="stat"><b>' + wrongN + '</b><span>错题</span></div>';
+      html += '<button class="stat" data-act="stats"><b>' + (rate === null ? '—' : rate + '%') + '</b><span>正确率</span></button>';
+    }
+
+    stats.innerHTML = html;
+    pfill.style.width = Math.max(0, Math.min(100, pct)) + '%';
+    pbar.setAttribute('aria-valuenow', String(pct));
+
+    if (chips.hidden) { chips.innerHTML = ''; return; }
+    var cHtml = '<button class="chip" data-subject="全部" aria-pressed="' + (state.subject === '全部') + '">全部 <small>' + TOTAL + '</small></button>';
+    SUBJECTS.forEach(function (sub) {
+      var n = QUESTIONS.filter(function (q) { return q.subject === sub; }).length;
+      cHtml += '<button class="chip" data-subject="' + esc(sub) + '" aria-pressed="' + (state.subject === sub) + '">' + esc(sub) + ' <small>' + n + '</small></button>';
+    });
+    cHtml += '<button class="chip wrongchip" data-act="wrongOnly" aria-pressed="' + state.wrongOnly + '">只看错题 <small>' + state.wrong.length + '</small></button>';
+    chips.innerHTML = cHtml;
+  }
+
+  /* ===================== 渲染：题卡 ===================== */
+  function optionHtml(q, perm, sel, reveal, locked) {
+    return perm.map(function (orig, pos) {
+      var isSel = sel.indexOf(orig) >= 0;
+      var isAns = q.answer.indexOf(orig) >= 0;
+      var cls = 'opt';
+      var mark = '';
+      if (isSel) cls += ' sel';
+      if (reveal) {
+        if (isAns) { cls += ' ok'; mark = '<span class="mk">✓</span>'; }
+        else if (isSel) { cls += ' bad'; mark = '<span class="mk">✗</span>'; }
+        else cls += ' dim';
+      }
+      return '<button type="button" class="' + cls + '" data-opt="' + orig + '"' +
+        (locked ? ' aria-disabled="true"' : '') + '>' +
+        '<span class="lt">' + LETTERS.charAt(pos) + '</span>' +
+        '<span class="ot">' + esc(q.options[orig]) + '</span>' + mark +
+        '</button>';
+    }).join('');
+  }
+
+  function explainHtml(q, perm, sel, ok) {
+    var head;
+    if (!sel.length) head = '未作答 · 正确答案：' + answerText(q, perm);
+    else head = (ok ? '✓ 回答正确' : '✗ 回答错误') + ' · 正确答案：' + answerText(q, perm);
+    return '<div class="exp ' + (ok ? 'ok' : 'bad') + '">' +
+      '<div class="eh">' + head + '</div>' +
+      '<div class="eb">' + esc(q.explain) + '</div>' +
+      '</div>';
+  }
+
+  function quizCard(q, ids, i, kind) {
+    var perm = permFor(q);
+    var sel = kind === 'practice' ? (state.answers[q.id] || []) : (state.exam.answers[q.id] || []);
+    var done = kind === 'practice' && !!state.done[q.id];
+    var reveal = kind === 'practice' ? done : kind === 'review';
+    var ok = isCorrect(q, sel);
+    var locked = kind === 'practice' && done;
+
+    var meta = '<span class="tag">' + esc(q.subject) + '</span>' +
+      '<span class="tag t2">' + TYPE_LABEL[q.type] + '</span>';
+
+    if (kind === 'review') {
+      meta += '<span class="state ' + (sel.length === 0 ? '' : ok ? 'ok' : 'bad') + '">' +
+        (sel.length === 0 ? '未作答' : ok ? '回答正确' : '回答错误') + '</span>';
+    }
+    if (kind === 'exam' || kind === 'review') {
+      meta += '<button class="minibtn" data-act="card">答题卡</button>';
+    }
+    var remain = ids.length - i - 1;
+    meta += '<span class="num">' + (i + 1) + '/' + ids.length + (kind === 'review' ? '' : ' · 余 ' + remain) + '</span>';
+
+    var hint = '';
+    if (kind === 'practice' && q.type === 'multi' && !done) {
+      hint = '<p class="hint">多选题：可选多个选项，选好后点下方「确认答案」提交。</p>';
+    }
+
+    return '<section class="card">' +
+      '<div class="meta">' + meta + '</div>' +
+      '<h2 class="stem">' + esc(q.stem) + '</h2>' +
+      '<div class="opts" role="group" aria-label="选项">' + optionHtml(q, perm, sel, reveal, locked) + '</div>' +
+      hint +
+      (reveal ? explainHtml(q, perm, sel, ok) : '') +
+      '</section>';
+  }
+
+  function emptyHtml() {
+    var t = state.wrongOnly ? '错题本还是空的' : '这个范围暂时没有题目';
+    var p = state.wrongOnly
+      ? '还没有做错的题，继续保持。也可以回到全部题目，再多练几道。'
+      : '换一个科目，或回到全部题目看看。';
+    return '<section class="card empty">' +
+      '<div class="emo" aria-hidden="true">◎</div>' +
+      '<h2>' + t + '</h2><p>' + p + '</p></section>';
+  }
+
+  function introHtml() {
+    var n = orderedIds(subjectIds()).length;
+    var scope = state.subject === '全部' ? '全部科目' : state.subject;
+    return '<section class="card intro">' +
+      '<div class="kicker">考试模式</div>' +
+      '<h2>一次完成 ' + n + ' 题</h2>' +
+      '<p>本次范围：' + esc(scope) + '。作答过程不显示对错，可随时通过答题卡跳转，最后一题或点「交卷」提交。</p>' +
+      '<ul>' +
+      '<li>交卷后给出得分、正确率与分档评语</li>' +
+      '<li>答错的题自动进入错题本，答对则移出</li>' +
+      '<li>答案实时保存，刷新或重开浏览器都不会丢</li>' +
+      '</ul></section>';
+  }
+
+  function resultHtml() {
+    var st = examStats();
+    var pct = st.score;
+    var verdict = pct >= 90 ? '稳了，保持手感'
+      : pct >= 75 ? '不错，重点补错题'
+      : pct >= 60 ? '基础尚可，错题再过一遍'
+      : '需要突击，先看逐题解析';
+    var scope = state.subject === '全部' ? '全部科目' : state.subject;
+    return '<section class="card result">' +
+      '<div class="score"><span class="big">' + pct + '</span><span class="unit">分</span></div>' +
+      '<div class="verdict">' + verdict + '</div>' +
+      '<div class="rline">正确率 ' + pct + '% · 正确 ' + st.c + ' 题 · 错误 ' + st.w + ' 题 · 未答 ' + st.b + ' 题</div>' +
+      '<div class="rbar"><i style="width:' + pct + '%"></i></div>' +
+      '<div class="rsub">范围：' + esc(scope) + ' · 共 ' + st.n + ' 题</div>' +
+      '</section>';
+  }
+
+  function renderMain() {
+    var z = document.getElementById('qzone');
+    var v = view();
+    if (v === 'short') { z.innerHTML = shortViewHtml(); return; }
+    if (v === 'empty') { z.innerHTML = emptyHtml(); return; }
+    if (v === 'examIntro') { z.innerHTML = introHtml(); return; }
+    if (v === 'result') { z.innerHTML = resultHtml(); return; }
+
+    var ids = activeIds();
+    var i = curIdx(ids);
+    var q = QMAP.get(ids[i]);
+    if (!q) { z.innerHTML = emptyHtml(); return; }
+    var kind = v === 'review' ? 'review' : (state.mode === 'exam' ? 'exam' : 'practice');
+    z.innerHTML = quizCard(q, ids, i, kind);
+  }
+
+  /* ===================== 渲染：底部操作条 ===================== */
+  function dockHtml() {
+    var v = view();
+    if (v === 'empty') {
+      return '<button class="btn primary" data-act="all">回到全部题目</button>';
+    }
+    if (v === 'examIntro') {
+      return '<button class="btn primary" data-act="startExam">开始考试 · ' + orderedIds(subjectIds()).length + ' 题</button>';
+    }
+    if (v === 'result') {
+      return '<button class="btn ghost" data-act="retry">再考一次</button>' +
+        '<button class="btn primary" data-act="review">逐题查看解析</button>';
+    }
+    if (v === 'short') {
+      if (state.shortTab === 'num') {
+        return '<button class="btn primary" data-act="qaTab">回到简答题</button>';
+      }
+      var sq = shortCur();
+      var sOpen = !!state.shortOpen[sq.id];
+      var sFirst = state.shortIdx <= 0;
+      var sLast = state.shortIdx >= SHORT_QA.length - 1;
+      var sPrev = '<button class="btn ghost" data-act="shortPrev"' + (sFirst ? ' disabled' : '') + '>上一题</button>';
+      if (!sOpen) return sPrev + '<button class="btn primary" data-act="shortReveal">显示参考答案</button>';
+      return sPrev + '<button class="btn primary" data-act="' + (sLast ? 'shortEnd' : 'shortNext') + '">' + (sLast ? '完成' : '下一题') + '</button>';
+    }
+
+    var ids = activeIds();
+    var i = curIdx(ids);
+    var atFirst = i <= 0;
+    var atLast = i >= ids.length - 1;
+    var prevBtn = '<button class="btn ghost" data-act="prev"' + (atFirst ? ' disabled' : '') + '>上一题</button>';
+
+    if (v === 'review') {
+      return prevBtn + '<button class="btn primary" data-act="' + (atLast ? 'exitReview' : 'next') + '">' +
+        (atLast ? '退出查阅' : '下一题') + '</button>';
+    }
+
+    if (state.mode === 'practice') {
+      var q = curQ();
+      var multi = q && q.type === 'multi' && !state.done[q.id];
+      var label = multi ? '确认答案' : (atLast ? '完成本轮' : '下一题');
+      var act = multi ? 'confirm' : (atLast ? 'finish' : 'next');
+      return prevBtn + '<button class="btn primary" data-act="' + act + '">' + label + '</button>';
+    }
+
+    if (atLast) {
+      return prevBtn + '<button class="btn primary" data-act="submit-open">交卷</button>';
+    }
+    return prevBtn +
+      '<button class="btn ghost" data-act="submit-open">交卷</button>' +
+      '<button class="btn primary" data-act="next">下一题</button>';
+  }
+
+  function renderDock() {
+    document.getElementById('dock').innerHTML = dockHtml();
+  }
+
+  /* ===================== 渲染：侧栏与弹层 ===================== */
+  function subjectRowsHtml() {
+    return SUBJECTS.map(function (sub) {
+      var s = subjectStats(sub);
+      var pct = s.pct === null ? 0 : s.pct;
+      return '<div class="srow">' +
+        '<div class="st"><span>' + esc(sub) + '</span><span class="sp">' + (s.pct === null ? '—' : s.pct + '%') + '</span></div>' +
+        '<div class="sbar"><i style="width:' + pct + '%"></i></div>' +
+        '<div class="sm">作答 ' + s.t + ' 次 · 练习已答 ' + s.done + '/' + s.total + '</div>' +
+        '</div>';
+    }).join('');
+  }
+
+  function renderRail() {
+    var rail = document.getElementById('rail');
+    if (!rail) return;
+    var answeredAll = 0;
+    QUESTIONS.forEach(function (q) { if (state.done[q.id]) answeredAll++; });
+    rail.innerHTML = '<div class="sticky">' +
+      '<div class="railcard"><h3>各科正确率</h3>' + subjectRowsHtml() + '</div>' +
+      '<div class="railcard"><h3>本机数据</h3>' +
+      '<p class="sl" style="font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:10px">题库 ' + TOTAL + ' 题 · 已答 ' + answeredAll + ' 题 · 错题 ' + state.wrong.length + ' 道</p>' +
+      '<button class="mini wide" data-act="stats">查看完整数据</button></div>' +
+      '<p class="foot">单文件 · 零外链 · 断网可用；进度只保存在本机浏览器。</p>' +
+      '</div>';
+  }
+
+  function statsSheetHtml() {
+    var answered = 0, correct = 0;
+    QUESTIONS.forEach(function (q) {
+      if (state.done[q.id]) {
+        answered++;
+        if (isCorrect(q, state.answers[q.id] || [])) correct++;
+      }
+    });
+    var rate = answered ? Math.round(correct / answered * 100) : null;
+    var body = '<div class="overview">' +
+      '<div class="ov"><b>' + answered + '</b><span>已答</span></div>' +
+      '<div class="ov"><b>' + correct + '</b><span>正确</span></div>' +
+      '<div class="ov"><b>' + (rate === null ? '—' : rate + '%') + '</b><span>正确率</span></div>' +
+      '<div class="ov"><b>' + state.wrong.length + '</b><span>错题</span></div>' +
+      '</div>' +
+      '<h3 style="font-size:14px;margin-bottom:4px">各科正确率</h3>' +
+      subjectRowsHtml() +
+      '<div class="pactions">' +
+      '<button class="mini wide" data-act="clearWrong"' + (state.wrong.length ? '' : ' disabled') + '>清空错题本（' + state.wrong.length + '）</button>' +
+      '<button class="mini wide danger" data-act="reset">' + (ui.resetArm ? '再点一次确认清空' : '重置全部进度') + '</button>' +
+      '</div>' +
+      '<p class="note">正确率按历史作答次数统计；错题答对后会自动移出。重置会清空作答、错题、考试记录与简答阅读进度。</p>';
+    return body;
+  }
+
+  function cardSheetHtml() {
+    var cells = state.exam.ids.map(function (id, i) {
+      var s = state.exam.answers[id] || [];
+      var cls = 'cell' + (i === curIdx(state.exam.ids) ? ' cur' : '') + (s.length ? ' ans' : '');
+      return '<button class="' + cls + '" data-act="jump" data-i="' + i + '">' + (i + 1) + '</button>';
+    }).join('');
+    return '<div class="legend"><span class="lg cur"></span>当前<span class="lg ans"></span>已答</div>' +
+      '<div class="grid">' + cells + '</div>' +
+      '<p class="note">共 ' + state.exam.ids.length + ' 题，已答 ' + (examStats().c + examStats().w) + ' 题。</p>';
+  }
+
+  function submitSheetHtml() {
+    var st = examStats();
+    return '<p class="sheetp">本次共 ' + st.n + ' 题，已答 ' + (st.c + st.w) + ' 题，还有 ' + st.b + ' 题未作答。未答按错处理，交卷后不能修改答案。</p>' +
+      '<div class="pactions" style="flex-direction:row">' +
+      '<button class="btn ghost" style="flex:1" data-act="close">继续答题</button>' +
+      '<button class="btn primary" style="flex:1" data-act="doSubmit">确认交卷</button>' +
+      '</div>';
+  }
+
+  function renderSheet() {
+    var root = document.getElementById('sheetRoot');
+    if (!ui.sheet) {
+      root.innerHTML = '';
+      document.body.style.overflow = '';
+      return;
+    }
+    document.body.style.overflow = 'hidden';
+    var title = '';
+    var body = '';
+    if (ui.sheet === 'stats') { title = '备考数据'; body = statsSheetHtml(); }
+    else if (ui.sheet === 'card') { title = '答题卡'; body = cardSheetHtml(); }
+    else if (ui.sheet === 'submit') { title = '确认交卷'; body = submitSheetHtml(); }
+    else if (ui.sheet === 'clearWrong') {
+      title = '清空错题本';
+      body = '<p class="sheetp">将移除 ' + state.wrong.length + ' 道错题记录，已作答的练习进度不受影响。</p>' +
+        '<div class="pactions" style="flex-direction:row">' +
+        '<button class="btn ghost" style="flex:1" data-act="close">取消</button>' +
+        '<button class="btn primary" style="flex:1" data-act="doClearWrong">确认清空</button></div>';
+    } else if (ui.sheet === 'retry') {
+      title = '重新开始考试';
+      body = '<p class="sheetp">将清空本场作答并重新抽题，之前的得分不再保留。</p>' +
+        '<div class="pactions" style="flex-direction:row">' +
+        '<button class="btn ghost" style="flex:1" data-act="close">取消</button>' +
+        '<button class="btn primary" style="flex:1" data-act="doRetry">重新开始</button></div>';
+    }
+    root.innerHTML = '<div class="sheet"><div class="mask"></div>' +
+      '<div class="panel" role="dialog" aria-modal="true" aria-label="' + title + '">' +
+      '<div class="phead"><h3>' + title + '</h3><button class="closebtn" data-act="close">关闭</button></div>' +
+      body + '</div></div>';
+  }
+
+  function render() {
+    try {
+      document.body.setAttribute('data-appmode', state.mode);
+      renderTop();
+      renderMain();
+      renderDock();
+      renderRail();
+      renderSheet();
+    } catch (e) {
+      fatal(e && e.message ? e.message : String(e));
+    }
+  }
+
+  /* ===================== 事件 ===================== */
+  function handleAct(act, el) {
+    switch (act) {
+      case 'fold':
+        state.collapse = !state.collapse;
+        save();
+        render();
+        break;
+      case 'order':
+        setOrder();
+        break;
+      case 'stats':
+        openStats();
+        break;
+      case 'all':
+        showAll();
+        break;
+      case 'wrongOnly':
+        state.wrongOnly = !state.wrongOnly;
+        state.idx = 0;
+        ui.hold = null;
+        // 进入错题本时重新开放作答：否则练习模式的“已答锁定”会让错题永远无法答对移出
+        if (state.wrongOnly) {
+          state.wrong.forEach(function (id) {
+            delete state.done[id];
+            delete state.answers[id];
+          });
+        }
+        if (state.wrongOnly && !currentIds().length) toast('还没有错题，继续加油！');
+        else if (state.wrongOnly) toast('错题已重新开放作答，答对后自动移出');
+        save();
+        render();
+        toTop();
+        break;
+      case 'prev':
+        step(-1);
+        break;
+      case 'next':
+        step(1);
+        break;
+      case 'finish':
+        openStats();
+        toast('本轮已到最后一题');
+        break;
+      case 'confirm':
+        confirmMulti();
+        break;
+      case 'startExam':
+        startExam();
+        break;
+      case 'retry':
+        openSheet('retry');
+        break;
+      case 'doRetry':
+        startExam();
+        break;
+      case 'review':
+        enterReview();
+        break;
+      case 'exitReview':
+        exitReview();
+        break;
+      case 'submit-open':
+        openSubmit();
+        break;
+      case 'doSubmit':
+        submitExam();
+        toast('已交卷');
+        break;
+      case 'card':
+        openSheet('card');
+        break;
+      case 'jump':
+        jumpTo(Number(el.getAttribute('data-i')));
+        break;
+      case 'close':
+        closeSheet();
+        break;
+      case 'reset':
+        if (!ui.resetArm) {
+          ui.resetArm = true;
+          clearTimeout(ui.resetTimer);
+          ui.resetTimer = window.setTimeout(function () {
+            ui.resetArm = false;
+            render();
+          }, 3000);
+          render();
+          toast('再点一次即可清空全部作答与错题');
+        } else {
+          clearTimeout(ui.resetTimer);
+          doReset();
+          toast('已重置，作答与错题已全部清空');
+        }
+        break;
+      case 'clearWrong':
+        if (!state.wrong.length) { toast('错题本已经是空的'); return; }
+        openSheet('clearWrong');
+        break;
+      case 'doClearWrong':
+        state.wrong = [];
+        ui.hold = null;
+        ui.sheet = null;
+        save();
+        render();
+        toast('错题本已清空');
+        break;
+      case 'qaTab':
+        shortTab('qa');
+        break;
+      case 'numTab':
+        shortTab('num');
+        break;
+      case 'shortPrev':
+        shortStep(-1);
+        break;
+      case 'shortNext':
+        shortStep(1);
+        break;
+      case 'shortReveal':
+        shortReveal();
+        break;
+      case 'shortHide':
+        shortHide();
+        break;
+      case 'shortEnd':
+        toast('15 道简答已过完，可切到「数字速记」');
+        break;
+      default:
+        break;
+    }
+  }
+
+  document.addEventListener('click', function (e) {
+    var sheetEl = e.target.closest ? e.target.closest('.sheet') : null;
+    if (sheetEl && !e.target.closest('.panel')) { closeSheet(); return; }
+
+    var optEl = e.target.closest ? e.target.closest('[data-opt]') : null;
+    if (optEl) { chooseOption(Number(optEl.getAttribute('data-opt'))); return; }
+
+    var subEl = e.target.closest ? e.target.closest('[data-subject]') : null;
+    if (subEl) { setSubject(subEl.getAttribute('data-subject')); return; }
+
+    var modeEl = e.target.closest ? e.target.closest('[data-mode]') : null;
+    if (modeEl) { setMode(modeEl.getAttribute('data-mode')); return; }
+
+    var actEl = e.target.closest ? e.target.closest('[data-act]') : null;
+    if (actEl) { handleAct(actEl.getAttribute('data-act'), actEl); }
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if (ui.sheet) {
+      if (e.key === 'Escape') { e.preventDefault(); closeSheet(); }
+      return;
+    }
+    var v = view();
+    if (v === 'short') {
+      if (e.key === 'Enter') { e.preventDefault(); primaryAct(); return; }
+      if (e.key === 'ArrowRight') { e.preventDefault(); shortStep(1); return; }
+      if (e.key === 'ArrowLeft') { e.preventDefault(); shortStep(-1); }
+      return;
+    }
+    if (v !== 'quiz' && v !== 'examQuiz') {
+      if (e.key === 'Enter') { e.preventDefault(); primaryAct(); }
+      return;
+    }
+    var key = e.key;
+    var pos = -1;
+    if (/^[a-eA-E]$/.test(key)) pos = key.toUpperCase().charCodeAt(0) - 65;
+    else if (/^[1-5]$/.test(key)) pos = Number(key) - 1;
+
+    if (pos >= 0) {
+      var q = curQ();
+      if (!q) return;
+      var perm = permFor(q);
+      if (pos < perm.length) {
+        e.preventDefault();
+        chooseOption(perm[pos]);
+      }
+      return;
+    }
+    if (key === 'Enter') { e.preventDefault(); primaryAct(); return; }
+    if (key === 'ArrowRight') { e.preventDefault(); step(1); return; }
+    if (key === 'ArrowLeft') { e.preventDefault(); step(-1); }
+  });
+
+  window.addEventListener('error', function (ev) {
+    if (ev && ev.message) fatal(ev.message);
+  });
+
+  /* ===================== 启动 ===================== */
+  try {
+    load();
+    if (!QUESTIONS.length) throw new Error('题库为空');
+    render();
+  } catch (e) {
+    fatal(e && e.message ? e.message : String(e));
+    var z = document.getElementById('qzone');
+    if (z) {
+      z.innerHTML = '<div class="fatal">初始化失败：' + esc(e && e.message ? e.message : '未知错误') +
+        '。请刷新页面重试；若使用无痕模式或禁用了本地存储，进度将无法保存。</div>';
+    }
+  }
+})();
+</script>
+</body>
+</html>
