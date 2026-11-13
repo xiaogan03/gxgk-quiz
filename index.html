@@ -1739,7 +1739,7 @@
     if (!q) return;
 
     if (state.mode === 'practice') {
-      if (state.done[q.id]) { toast('本题已作答，不能修改'); return; }
+      if (state.done[q.id]) { toast('本题已作答；如需重答，点下方「重做」'); return; }
       if (q.type === 'multi') {
         var cur = (state.answers[q.id] || []).slice();
         var idx = cur.indexOf(orig);
@@ -2272,7 +2272,13 @@
       var multi = q && q.type === 'multi' && !state.done[q.id];
       var label = multi ? '确认答案' : (atLast ? '完成本轮' : '下一题');
       var act = multi ? 'confirm' : (atLast ? 'finish' : 'next');
-      return prevBtn + '<button class="btn primary" data-act="' + act + '">' + label + '</button>';
+      var extra = '';
+      if (q && state.done[q.id]) {
+        extra = '<button class="btn ghost" data-act="redo">重做本题</button>';
+      } else if (q && q.type === 'multi' && (state.answers[q.id] || []).length) {
+        extra = '<button class="btn ghost" data-act="clearSel">清空已选</button>';
+      }
+      return prevBtn + extra + '<button class="btn primary" data-act="' + act + '">' + label + '</button>';
     }
 
     if (atLast) {
@@ -2531,6 +2537,26 @@
       case 'shortEnd':
         toast('15 道简答已过完，可切到「数字速记」');
         break;
+      case 'redo': {
+        var rq = curQ();
+        if (rq && state.mode === 'practice') {
+          delete state.answers[rq.id];
+          delete state.done[rq.id];
+          save();
+          render();
+          toast('已重置本题，请重新作答');
+        }
+        break;
+      }
+      case 'clearSel': {
+        var cq = curQ();
+        if (cq && state.mode === 'practice') {
+          delete state.answers[cq.id];
+          save();
+          render();
+        }
+        break;
+      }
       default:
         break;
     }
