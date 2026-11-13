@@ -128,7 +128,7 @@
     flex:0 0 auto;display:flex;gap:8px;padding:3px;
     border:1px solid var(--line);border-radius:12px;background:var(--card);
   }
-  .seg button{min-height:44px;padding:0 10px;border-radius:9px;font-size:14.5px;font-weight:600;color:var(--muted)}
+  .seg button{min-height:44px;padding:0 8px;border-radius:9px;font-size:14px;font-weight:600;color:var(--muted)}
   .seg button[aria-pressed="true"]{background:var(--accent);color:var(--on-accent)}
   .mini{
     min-height:44px;padding:0 12px;border:1px solid var(--line);border-radius:12px;
@@ -160,7 +160,6 @@
   }
   .chips::-webkit-scrollbar{display:none}
   @media (max-width:767px){
-    .ctrl #orderBtn{display:none}
     .chips{
       -webkit-mask-image:linear-gradient(to right,#000 0,#000 calc(100% - 22px),transparent 100%);
       mask-image:linear-gradient(to right,#000 0,#000 calc(100% - 22px),transparent 100%);
@@ -469,7 +468,7 @@
         <button data-mode="short" aria-pressed="false">简答</button>
       </div>
       <button class="mini" data-act="order" id="orderBtn">顺序出题</button>
-      <button class="mini" data-act="resetAnswers" id="resetAnsBtn">重置答案</button>
+      <button class="mini" data-act="resetAnswers" id="resetAnsBtn">重置</button>
       <button class="mini" data-act="stats">数据</button>
     </div>
     <div class="stats" id="stats"></div>
@@ -2025,12 +2024,14 @@
     chips.hidden = state.collapse || state.mode !== 'practice';
     foldBtn.textContent = state.collapse ? '⌄' : '⌃';
     foldBtn.setAttribute('aria-expanded', state.collapse ? 'false' : 'true');
-    orderBtn.textContent = state.order === 'seq' ? '顺序出题' : '随机出题';
+    orderBtn.textContent = state.order === 'seq' ? '顺序' : '随机';
+    orderBtn.title = '切换顺序 / 随机出题';
     orderBtn.hidden = state.mode === 'short';
 
     var resetAnsBtn = document.getElementById('resetAnsBtn');
     resetAnsBtn.hidden = state.mode !== 'practice';
-    resetAnsBtn.textContent = ui.ansArm ? '确认重置' : '重置答案';
+    resetAnsBtn.textContent = ui.ansArm ? '确认' : '重置';
+    resetAnsBtn.title = ui.ansArm ? '再点一次清空全部练习答案' : '重置全部练习答案';
     if (ui.ansArm) resetAnsBtn.classList.add('danger'); else resetAnsBtn.classList.remove('danger');
     var ansCount = 0;
     for (var ai = 0; ai < QUESTIONS.length; ai++) {
